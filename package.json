@@ -1,5 +1,5 @@
 {
-  "name": "hpcc-cluster",
+  "name": "@lpezet/hpcc-cluster",
   "version": "1.0.0",
   "description": "HPCC Cluster management in JS",
   "main": "",
@@ -14,6 +14,17 @@
     "test-watch": "mocha --watch --reporter=spec",
     "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lpezet/hpcc-cluster.git"
+  },
+  "keywords": [
+    "hpcc-systems","hpcc"
+  ],
+  "author": "Luke Pezet <lpezet@gmail.com>",
+  "bugs": {
+    "url": "https://github.com/lpezet/hpcc-cluster/issues"
+  },
   "nyc": {
     "include": "lib",
     "check-coverage": true,
@@ -26,7 +37,6 @@
       "text-summary"
     ]
   },
-  "author": "",
   "license": "MIT",
   "engines": {
     "node": ">= 0.12.4"

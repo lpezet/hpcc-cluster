@@ -64,4 +64,31 @@ describe('HpccCluster',function(){
     	oHPCCCluster.myMod();
     	assert.isTrue( oMod.helloCalled() );
 	});
+	
+	it('save_state', function(done) {
+		var oHPCCCluster = new HPCCClusterClass( Logger, DEFAULT_ERROR_HANDLER, Utils );
+		var oState = [
+				{
+					"Name": "master",
+					"ImageId": "ami-97785bed"
+				}
+		];
+		oHPCCCluster.save_state( {}, oState ).then(function() {
+			done();
+		}, function( pError ) {
+			done( pError );
+		})
+	});
+	
+	it('load_state', function(done) {
+		var oHPCCCluster = new HPCCClusterClass( Logger, DEFAULT_ERROR_HANDLER, Utils );
+		var oState = {
+				"master": { "ImageId": "ami-97785bed"}
+		}
+		oHPCCCluster.load_state( {}, oState ).then(function( pJSON ) {
+			done();
+		}, function( pError ) {
+			done( pError );
+		})
+	});
 });
