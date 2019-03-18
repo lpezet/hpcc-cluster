@@ -1,0 +1,164 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: HPCC Cluster node (Master, Support or Slave).
+Parameters:
+  ParamNodeName:
+    Description: Fleet name
+    Type: String
+  ParamCapacity:
+    Description: Number of nodes
+    Type: Integer
+Resources:
+  HPCCNodeEc2SpotFleet:
+    Type: AWS::EC2::SpotFleet
+    Metadata:
+      Comment1: HPCC Systems Fleet
+      AWS::CloudFormation::Init:
+        configSets:
+          default:
+            - ConfigSet: Basic
+            - ConfigSet: AddOns
+          Basic:
+            - AWSBaseConfig
+            - BasePackages
+            - ClusterProperties
+          AddOns:
+            #foreach( $ConfigSet in $Node.ConfigSets.entrySet() )
+            - ${ConfigSet.key}
+            #end
+        BasePackages:
+          packages:
+            yum:
+              xfsprogs: []
+        ClusterProperties:
+          files:
+            /opt/hpcc-cluster/cluster.config:
+              mode: '000440'
+              owner: root
+              content: !Join 
+                - ''
+                - - cluster_name=${Cluster.Name}
+                  - |+
+                  
+                  - aws_username=${AWS.Username}
+                  - |+
+                  
+                  - cluster_region=
+                  - !Ref 'AWS::Region'
+                  - |+
+
+              group: root     
+        AWSBaseConfig:
+          files:
+            /etc/aws/.aws-stack.properties:
+              mode: '000440'
+              owner: root
+              content: !Join 
+                - ''
+                - - stack_name=
+                  - !Ref 'AWS::StackId'
+                  - |+
+                  
+                  - resource=HPCCNodeEc2Instance
+                  - |+
+                  
+                  - region=
+                  - !Ref 'AWS::Region'
+                  - |+
+
+              group: root
+        # ----------------------------------------------------------------------------------
+        # AddOns
+        # ----------------------------------------------------------------------------------
+        #foreach( $ConfigSet in $Node.ConfigSets.entrySet() )
+        ${ConfigSet.key}:
+        #end
+    Properties:
+      SpotFleetRequestConfigData:
+        # ????
+        IamFleetRole: ${Instance.IamRole}
+        SpotPrice: -----> TODO <-------
+        TargetCapacity:
+          Ref: ParamCapacity
+        LaunchSpecifications:
+          BlockDeviceMappings:
+          - DeviceName: /dev/xvda
+            Ebs:
+              DeleteOnTermination: true
+              VolumeSize: '8'
+              VolumeType: gp2
+          #foreach( $vol in $Node.Volumes )
+          #if( $vol.Type != 'ephemeral' )
+          - DeviceName: ${vol.DeviceName}
+            Ebs:
+              DeleteOnTermination: true
+              #if( $vol.SnapshotId )
+              SnapshotId: ${vol.SnapshotId}
+              #else
+              VolumeSize: '${vol.Size}'
+              Encrypted: #default($vol.Encrypted,"false")
+              #end
+              VolumeType: #default($vol.Type,"gp2")
+              #if( $vol.Type == 'io1' )
+              Iops: ${vol.Iops}
+              #end
+          #end
+          #end
+          EbsOptimized: true
+          IamInstanceProfile: ${Instance.IamRole}
+          ImageId: ${Instance.ImageId}
+          InstanceType: ${Instance.Type}
+          KeyName: ${Instance.KeyName}
+          Monitoring:
+            Enabled: true
+          NetworkInterfaces:
+          - AssociatePublicIpAddress: true
+            DeviceIndex: 0
+            SubnetId: ${Vpc.SubnetId}
+            GroupSet: 
+            - ${Vpc.SecurityGroupId}
+            PrivateIpAddresses:
+            # ---> TODO <----
+            #foreach( $ip in $Node.PrivateIpAddresses )
+            - PrivateIpAddress: ${ip}
+            #end
+          TagSpecifications:
+          - ResourceType: instance
+            Tags:
+            - Value:
+                Fn::Join:
+                - '-'
+                - - ${Cluster.Name}
+                  - Ref: ParamNodeName
+              Key: Name
+          UserData:
+            Fn::Base64:
+              !Sub |
+                #!/bin/bash -xe
+                yum update -y
+                yum install -y aws-cfn-bootstrap
+                # Install the files and packages from the metadata
+                /opt/aws/bin/cfn-init -v --stack \${AWS::StackName} --resource HPCCNodeEc2Instance --region \${AWS::Region}
+                # Signal the status from cfn-init
+                /opt/aws/bin/cfn-signal -e $? --stack \${AWS::StackName} --resource HPCCNodeEc2Instance --region \${AWS::Region}
+          
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+Outputs:
+  #InstanceId:
+  #  Description: Instance Id
+  #  Value:
+  #    Ref: HPCCNodeEc2Instance
+  #PrivateIP:
+  #  Description: Private IP
+  #  Value:
+  #    Fn::GetAtt:
+  #    - HPCCNodeEc2Instance
+  #    - PrivateIp
+  #PublicIP:
+  #  Description: Public IP
+  #  Value:
+  #    Fn::GetAtt:
+  #    - HPCCNodeEc2Instance
+  #    - PublicIp

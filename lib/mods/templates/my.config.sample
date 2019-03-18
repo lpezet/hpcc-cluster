@@ -1,0 +1,19 @@
+---
+# The following will override anything specifying through command line
+AWS:
+  Profile: my-aws-profile
+  Region: us-east-1
+  # run: "aws iam get-user" to get your username
+  # NB: Username can only contain .-_
+  # This is used for dm-crypt/Luks for secure storage with RAID.
+  Username: first.last
+  S3Bucket: somebucket
+
+# If true, most operation won't trigger any AWS action, or will trigger AWS actions with "DryRun" parameter.
+DryRun: true
+
+# Used to ssh into instance.
+KeyPairFile: '/Users/johndoe/somekey.pem'
+
+# Used for notifications
+Email: 'youremail@yourorg.com'
