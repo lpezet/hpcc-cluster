@@ -43,6 +43,20 @@ describe('HpccCluster',function(){
 		assert.deepEqual( Tested.merge_new_only( { "a": 10, "c": 3 }, { "a": 10, "c": 3 } ), { "a": 10, "c": 3 } );
 	});
 	
+	it('resolve_target', function() {
+		assert.equal( Tested.resolve_target(null, '1.2.3.4'), '1.2.3.4' );
+		assert.equal( Tested.resolve_target(null, 'master'), 'master' );
+		assert.equal( Tested.resolve_target({ Topology: { 
+			"slave00001": { NetworkInterfaces: [ { Association: { PublicIp: "1.2.3.4" } } ] } 
+		}}, '@slave00001'), '1.2.3.4' );
+		assert.equal( Tested.resolve_target({ Topology: { 
+			"slave00001": { NetworkInterfaces: [ { Association: { PublicIp: "1.2.3.4" } } ] },
+			"slave00002": { NetworkInterfaces: [ { Association: { PublicIp: "5.6.7.8" } } ] },
+		}}, '@slave00001'), '1.2.3.4' );
+		assert.equal( Tested.resolve_target({ Topology: { 
+			"master": { NetworkInterfaces: [ { Association: { PublicIp: "1.2.3.4" } } ] } 
+		}}, null), '1.2.3.4' );
+	});
 	
 	it('find_PublicIp',function(){
 		assert.isNull( Tested.find_PublicIp( null ) );
