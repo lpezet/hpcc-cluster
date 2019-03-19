@@ -1,22 +1,11 @@
-//const Fs = require('fs');
-//var exec = require('child_process').exec
-//const AWS = require('aws-sdk');
+const path = require('path');
 
 const SimpleLogger = require('../lib/logger');
 const Logger = new SimpleLogger();
 
 const HandlerClass = require('../lib/handler');
-//const { yamlParse } = require('yaml-cfn');
-//const path = require('path');
-//const winston = require('winston');
-//const when = require("promised-io/promise").when;
 var HPCCClusterClass = require('../lib/hpcc-cluster');
 const assert = require('chai').assert;
-//const sinon = require('sinon');
-//const TEST_DIR = process.cwd();
-//if ( ! Fs.existsSync( TEST_DIR ) ) Fs.mkdirSync( TEST_DIR );
-//const TEST_CONFIG_FILE_PATH = path.resolve(__dirname, "test.cluster.config");
-//var oClusterConfig = yamlParse( Fs.readFileSync( TEST_CONFIG_FILE_PATH, {encoding: 'utf8'}) );
 
 class DefaultErrorHandler extends HandlerClass {
         doHandle( pError, pPromise, pHandlerChain ) {
@@ -63,6 +52,38 @@ describe('HpccCluster',function(){
     	assert.exists( oHPCCCluster['myMod'] );
     	oHPCCCluster.myMod();
     	assert.isTrue( oMod.helloCalled() );
+	});
+	
+	it('extend', function() {
+		var oHPCCCluster = new HPCCClusterClass( Logger, DEFAULT_ERROR_HANDLER, Utils );
+		var oExtension = {
+				b: function() {
+					return "b";
+				},
+				c: function() {
+					return "c";
+				}
+		};
+		oHPCCCluster.extend( oExtension, 'b');
+		assert.exists( oHPCCCluster.b );
+	});
+	
+	it('resolve path', function() {
+		var oHPCCCluster = new HPCCClusterClass( Logger, DEFAULT_ERROR_HANDLER, Utils );
+		var oActual = oHPCCCluster.resolve_path( 'toto.txt');
+		assert.equal( oActual, path.resolve( process.cwd(), 'toto.txt') );
+	});
+	
+	it('handle error', function() {
+		var oCalled = false;
+		var ErrorHandler = {
+				doHandle: function() {
+					oCalled = true;
+				}
+		};
+		var oHPCCCluster = new HPCCClusterClass( Logger, ErrorHandler, Utils );
+		oHPCCCluster.handle_error( new Error() );
+		assert.isTrue( oCalled );
 	});
 	
 	it('save_state', function(done) {

@@ -251,6 +251,41 @@ describe('Run',function(){
     	});
 	});
 	
+	it('no target error',function(done){
+		var HpccClusterMock = {
+    			mod: function() {},
+				refresh_state: function() {
+    				return Promise.resolve();
+    			}
+    	}
+    	
+    	var UtilsMock = {
+    	};
+    	
+    	var CloudClientMock = {
+    			describe_instances: function() {
+    				return Promise.resolve( DESCRIBE_INSTANCES_RESPONSE );
+    			},
+    			get_all_ec2_instance_ids_from_cluster: function() {
+    				return Promise.resolve( ['abc', 'def' ]);
+    			}
+    	};
+    	var SSHClientMock = {
+    			exec: function() {
+    				throw new Error('fake error');
+    			}
+    	}
+		var oTested = new TestedClass( HpccClusterMock, Logger, UtilsMock, CloudClientMock, SSHClientMock );
+		
+    	
+    	try {
+    		oTested.run( oClusterConfig, { cmd: "whoami" } );
+    		done( 'Expecting error' );
+    	} catch( e ) {
+    		done();
+    	}
+	});
+	
 	it('no command error',function(done){
 		var HpccClusterMock = {
     			mod: function() {},
@@ -279,7 +314,7 @@ describe('Run',function(){
 		
     	
     	try {
-    		oTested.run( oClusterConfig, null );
+    		oTested.run( oClusterConfig, { target: "master" } );
     		done( 'Expecting error' );
     	} catch( e ) {
     		done();
