@@ -82,13 +82,13 @@ clearHpccClusterInit = function() {
  */
 describe('Init',function(){
 	
-	before(function(done) {
+	beforeEach(function(done) {
 		clearHpccClusterInit();
 		//this.modStub = sinon.stub(HpccClusterClass.prototype, 'mod');
 		done();
 	});
 	
-	after(function(done) {
+	afterEach(function(done) {
 		//assert( this.modStub.called );
 		//HpccClusterClass.prototype.mod.restore();
 		clearHpccClusterInit();
@@ -122,6 +122,33 @@ describe('Init',function(){
     		} else {
     			done();
     		}
+    	}, function( err ) {
+    		done(err);
+    	});
+	});
+	
+	it('reject when creating config file more than once',function(done){
+		//var HpccCluster = new HpccClusterClass(DEFAULT_ERROR_HANDLER, Utils);
+		var HpccClusterMock = {
+    			mod: function() {}
+				/*
+    			save_state: function() {
+    				return Promise.resolve();
+    			}
+    			*/
+    	}
+		
+		var oTested = new TestedClass( HpccClusterMock, Logger );
+		//TODO: test init() method added to HpccCluster?
+		
+		var options = { parent: {} };
+		options.WorkDir = WORK_DIR;
+    	oTested.init( options ).then( function() {
+    		oTested.init( options ).then( function() {
+    			done('Expecting rejection.');
+    		}, function( err2 ) {
+    			done();
+    		})
     	}, function( err ) {
     		done(err);
     	});

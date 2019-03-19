@@ -7,7 +7,7 @@ const path = require('path');
 const SimpleLogger = require('../../lib/logger');
 const Logger = new SimpleLogger();
 
-//const assert = require('assert');
+const assert = require('chai').assert;
 //const sinon = require('sinon');
 //const TEST_DIR = process.cwd();
 const os = require('os');
@@ -15,7 +15,7 @@ const os = require('os');
 
 //if ( ! Fs.existsSync( TEST_DIR ) ) Fs.mkdirSync( TEST_DIR );
 const TEST_CONFIG_FILE_PATH = path.resolve(__dirname, "test.cluster.config");
-var oClusterConfig = yamlParse( Fs.readFileSync( TEST_CONFIG_FILE_PATH, {encoding: 'utf8'}) );
+var TEST_CLUSTER_CONFIG = yamlParse( Fs.readFileSync( TEST_CONFIG_FILE_PATH, {encoding: 'utf8'}) );
 /*
 const HandlerClass = require('../../lib/handler');
 class DefaultErrorHandler extends HandlerClass {
@@ -88,72 +88,78 @@ describe('Create',function(){
 		clearHpccClusterInit();
 		done();
 	});
+	
+	it('inject config sets with string template',function(){
+		var HpccClusterMock = {
+    			mod: function() {},
+    			save_state: function() {
+    				return Promise.resolve();
+    			},
+    			refresh_state: function() {
+    				return Promise.resolve();
+    			}
+    			//mInternalConfig: {
+    			//	LocalDir : path.resolve(os.tmpdir(), ".hpcc-cluster")
+    			//}
+    	}
+    	
+    	var oTested = new TestedClass( HpccClusterMock, Logger, Utils, {} );
+    	oTested._sync_request = function() {
+    		return { getBody: function() { return "{ commands: { 001_test: { command: whoami } } }" } };
+    	}
+		var oClusterConfig = {
+				Node: {
+					ConfigSets: {
+						"001_CS": "http://dont.matter.com"
+					}
+				}
+		};
+    	var oTemplate = "Resources:\n  HPCCNodeEc2Instance:\n    Metadata:\n      \'AWS::CloudFormation::Init\':\n";
+    	var oActual = oTested._injectConfigSets( oClusterConfig, oTemplate );
+    	assert.isNotNull( oActual );
+    	assert.equal( oActual, "Resources:\n  HPCCNodeEc2Instance:\n    Metadata:\n      \'AWS::CloudFormation::Init\':\n        001_CS:\n          commands:\n            001_test:\n              command: whoami\n");
+	});
 
+	it('inject config sets',function(){
+		var HpccClusterMock = {
+    			mod: function() {},
+    			save_state: function() {
+    				return Promise.resolve();
+    			},
+    			refresh_state: function() {
+    				return Promise.resolve();
+    			}
+    			//mInternalConfig: {
+    			//	LocalDir : path.resolve(os.tmpdir(), ".hpcc-cluster")
+    			//}
+    	}
+    	
+    	var oTested = new TestedClass( HpccClusterMock, Logger, Utils, {} );
+    	oTested._sync_request = function() {
+    		return { getBody: function() { return "{ commands: { 001_test: { command: whoami } } }" } };
+    	}
+		var oClusterConfig = {
+				Node: {
+					ConfigSets: {
+						"001_CS": "http://dont.matter.com"
+					}
+				}
+		};
+    	var oTemplate = {
+    			Resources: {
+    				HPCCNodeEc2Instance: {
+    					Metadata: {
+    						"AWS::CloudFormation::Init": {}
+    					}
+    				}
+    			}
+    	};
+    	var oActual = oTested._injectConfigSets( oClusterConfig, oTemplate );
+    	assert.isNotNull( oActual );
+    	assert.equal( oActual, "Resources:\n  HPCCNodeEc2Instance:\n    Metadata:\n      \'AWS::CloudFormation::Init\':\n        001_CS:\n          commands:\n            001_test:\n              command: whoami\n");
+	});
+	
 	it('should create',function(done){
-		/*
-    	var oDescribeStacksCount = 0;
-    	var describeStacksStub = sinon.stub(CF, 'describeStacks'); //.return( )
-    	describeStacksStub.callsFake( function( pParams, pCallback ) {
-    		//console.log('calling CF.describeStacks...');
-    		if ( oDescribeStacksCount === 0 ) pCallback( { code: 'ValidationError' } );
-    		else pCallback( null, {} ); // when refreshing state and querying CF
-    		oDescribeStacksCount++;
-    	});
-    	
-    	// For Status
-    	var listStackResourcesStub = sinon.stub(CF, 'listStackResources'); //.return( )
-    	listStackResourcesStub.callsFake( function( pParams, pCallback ) {
-    		//console.log('calling listStackResources...');
-    		pCallback( null, { StackResourceSummaries: [ { ResourceType: 'AWS::EC2::Instance', PhysicalResourceId: 'i-test-01' } ] } );
-    	});
-    	var describeInstancesStub = sinon.stub(EC2, 'describeInstances');//.return( {} );
-		describeInstancesStub.callsFake( function( pParams, pCallback ) {
-			//console.log('calling describeInstances...');
-			pCallback( null, { Reservations: [ { Instances: [ { InstanceId: 'i-test-01', Tags: [ { Key: 'Name', Value: 'this-is-a-test-node' }] } ] } ] } );
-		});
-		var describeInstanceStatusStub = sinon.stub(EC2, 'describeInstanceStatus');
-		describeInstanceStatusStub.callsFake( function( pParams, pCallback ) {
-			//console.log('calling describeInstances...');
-			pCallback( null, { InstanceStatuses: [ { InstanceId: 'i-test-01', SystemStatus: { Status: 'barelyrunning' }, InstanceStatus: { Status: 'barelyrunning' }, InstanceState: { Name: 'barelyrunning' } } ] } );
-		});
-    	// End Of Status
-    	
-    	var validateTemplateStub = sinon.stub(CF, 'validateTemplate'); //.return( )
-    	validateTemplateStub.callsFake( function( pParams, pCallback ) {
-    		//console.log('calling CF.validateTemplate...');
-    		pCallback( null, {} );
-    	});
-    	
-    	var putObjectStub = sinon.stub(S3, 'putObject'); //.return( )
-    	putObjectStub.callsFake( function( pParams, pCallback ) {
-    		//console.log('calling S3.putObject...');
-    		pCallback( null, {} );
-    	});
-    	
-    	var uploadStub = sinon.stub(S3, 'upload'); //.return( )
-    	uploadStub.callsFake( function( pParams, pCallback ) {
-    		//console.log('calling S3.upload...');
-    		pCallback( null, {} );
-    	});
-    	
-    	var createStackStub = sinon.stub(CF, 'createStack'); //.return( )
-    	createStackStub.callsFake( function( pParams, pCallback ) {
-    		//console.log('calling CF.createStack...');
-    		pCallback( null, { StackId: 'stack-test-01' } );
-    	});
-    	
-    	var waitForStub = sinon.stub(CF, 'waitFor'); //.return( )
-    	waitForStub.callsFake( function( pState, pParams, pCallback ) {
-    		//console.log('calling CF.waitFor...');
-    		pCallback( null, {} );
-    	});
-    	
-    	var getParameterStub = sinon.stub(SSM, 'getParameter');
-    	getParameterStub.callsFake( function( pParams, pCallback ) {
-    		//console.log('calling describeStacks...');
-    		pCallback( null, { 'Parameter': 'fake' } );
-    	});
-    	*/
 		var HpccClusterMock = {
     			mod: function() {},
     			save_state: function() {
@@ -196,7 +202,7 @@ describe('Create',function(){
     	var options = { parent: {} };
     	//var oInit = oHPCCCluster.init( options );
     	//oInit.then( function() {
-    		var oActual = oTested.create( oClusterConfig, options );
+    		var oActual = oTested.create( TEST_CLUSTER_CONFIG, options );
 			oActual.then( function() {
 				done();
 			}, function( pError ) {
