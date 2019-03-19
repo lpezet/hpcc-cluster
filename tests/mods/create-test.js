@@ -119,8 +119,50 @@ describe('Create',function(){
     	assert.isNotNull( oActual );
     	assert.equal( oActual, "Resources:\n  HPCCNodeEc2Instance:\n    Metadata:\n      \'AWS::CloudFormation::Init\':\n        001_CS:\n          commands:\n            001_test:\n              command: whoami\n");
 	});
-
+	
 	it('inject config sets',function(){
+		var HpccClusterMock = {
+    			mod: function() {},
+    			save_state: function() {
+    				return Promise.resolve();
+    			},
+    			refresh_state: function() {
+    				return Promise.resolve();
+    			}
+    			//mInternalConfig: {
+    			//	LocalDir : path.resolve(os.tmpdir(), ".hpcc-cluster")
+    			//}
+    	}
+    	
+    	var oTested = new TestedClass( HpccClusterMock, Logger, Utils, {} );
+    	var oClusterConfig = {
+				Node: {
+					ConfigSets: {
+						"001_CS": {
+							commands: {
+								"001_test": {
+									command: "whoami"
+								}
+							}
+						}
+					}
+				}
+		};
+    	var oTemplate = {
+    			Resources: {
+    				HPCCNodeEc2Instance: {
+    					Metadata: {
+    						"AWS::CloudFormation::Init": {}
+    					}
+    				}
+    			}
+    	};
+    	var oActual = oTested._injectConfigSets( oClusterConfig, oTemplate );
+    	assert.isNotNull( oActual );
+    	assert.equal( oActual, "Resources:\n  HPCCNodeEc2Instance:\n    Metadata:\n      \'AWS::CloudFormation::Init\':\n        001_CS:\n          commands:\n            001_test:\n              command: whoami\n");
+	});
+
+	it('inject config sets from url',function(){
 		var HpccClusterMock = {
     			mod: function() {},
     			save_state: function() {
@@ -157,6 +199,51 @@ describe('Create',function(){
     	var oActual = oTested._injectConfigSets( oClusterConfig, oTemplate );
     	assert.isNotNull( oActual );
     	assert.equal( oActual, "Resources:\n  HPCCNodeEc2Instance:\n    Metadata:\n      \'AWS::CloudFormation::Init\':\n        001_CS:\n          commands:\n            001_test:\n              command: whoami\n");
+	});
+	
+	it('secure storage reject',function(done){
+		var HpccClusterMock = {
+    			mod: function() {},
+    			save_state: function() {
+    				return Promise.resolve();
+    			},
+    			refresh_state: function() {
+    				return Promise.resolve();
+    			}
+    			//mInternalConfig: {
+    			//	LocalDir : path.resolve(os.tmpdir(), ".hpcc-cluster")
+    			//}
+    	}
+    	
+    	var CloudClientMock = {
+    			stack_exists: function() {
+    				return Promise.resolve();
+    			},
+    			get_all_ec2_instance_ids_from_cluster: function() {
+    				return Promise.resolve( ['abc', 'def' ]);
+    			},
+    			describe_ec2_status: function( pEC2Client, pInstanceIds, pOutputToConsole ) {
+    				return Promise.resolve('TODO: dunno what data looks like.');
+    			},
+    			s3_upload_file: function() {
+    				return Promise.resolve("TODO: dunno what's returned here.");
+    			},
+    			secure_storage_setup: function() {
+    				return Promise.reject( new Error() );
+    			},
+    			create_stack_to_completion: function() {
+    				return Promise.resolve("TODO: dunno what's returned here.");
+    			}
+    	};
+    	
+    	var oTested = new TestedClass( HpccClusterMock, Logger, Utils, CloudClientMock );
+    	var options = { parent: {} };
+		var oActual = oTested.create( TEST_CLUSTER_CONFIG, options );
+		oActual.then( function() {
+			done( 'Expecting rejection.' );
+		}, function( pError ) {
+			done();
+		});
 	});
 	
 	it('should create',function(done){
