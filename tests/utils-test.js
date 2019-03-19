@@ -43,6 +43,12 @@ describe('HpccCluster',function(){
 		assert.deepEqual( Tested.merge_new_only( { "a": 10, "c": 3 }, { "a": 10, "c": 3 } ), { "a": 10, "c": 3 } );
 	});
 	
+	it('state_get_node_public_ip', function() {
+		assert.isNull( Tested.state_get_node_public_ip( null, 'master' ) );
+		assert.isNull( Tested.state_get_node_public_ip( {}, 'master' ) );
+		assert.isNull( Tested.state_get_node_public_ip( { Topology: {} }, null ) );
+	});
+	
 	it('resolve_target', function() {
 		assert.equal( Tested.resolve_target(null, '1.2.3.4'), '1.2.3.4' );
 		assert.equal( Tested.resolve_target(null, 'master'), 'master' );

@@ -82,13 +82,41 @@ describe('HpccCluster',function(){
 	
 	it('load_state', function(done) {
 		var oHPCCCluster = new HPCCClusterClass( Logger, DEFAULT_ERROR_HANDLER, Utils );
-		var oState = {
-				"master": { "ImageId": "ami-97785bed"}
-		}
-		oHPCCCluster.load_state( {}, oState ).then(function( pJSON ) {
+		oHPCCCluster.load_state().then(function( pJSON ) {
 			done();
 		}, function( pError ) {
 			done( pError );
-		})
+		});
+	});
+	
+	it('get_state', function(done) {
+		var oHPCCCluster = new HPCCClusterClass( Logger, DEFAULT_ERROR_HANDLER, Utils );
+		oHPCCCluster.get_state().then(function( pData ) {
+			done();
+		}, function( pError ) {
+			done( pError );
+		});
+	});
+	
+	describe('refresh_state', function() {
+		it('no_status_mod', function() {
+			var oHPCCCluster = new HPCCClusterClass( Logger, DEFAULT_ERROR_HANDLER, Utils );
+			oHPCCCluster.refresh_state().then(function() {
+				done('Expected error.');
+			}, function( pError ) {
+				done();
+			})
+		});
+		it('status_mod', function() {
+			var oHPCCCluster = new HPCCClusterClass( Logger, DEFAULT_ERROR_HANDLER, Utils );
+			oHPCCCluster['status'] = function() {
+				return Promise.resolve( {} );
+			}
+			oHPCCCluster.refresh_state().then(function() {
+				done();
+			}, function( pError ) {
+				done( pError );
+			})
+		});
 	});
 });
