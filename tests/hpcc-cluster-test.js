@@ -65,7 +65,13 @@ describe('HpccCluster',function(){
 				}
 		};
 		oHPCCCluster.extend( oExtension, 'b');
-		assert.exists( oHPCCCluster.b );
+		assert.exists( oHPCCCluster['b'] );
+		assert.notExists( oHPCCCluster['c'] );
+		
+		oHPCCCluster.extend( oExtension );
+		assert.exists( oHPCCCluster['b'] );
+		assert.exists( oHPCCCluster['c'] );
+		
 	});
 	
 	it('resolve path', function() {

@@ -41,6 +41,9 @@ describe('HpccCluster',function(){
 		assert.deepEqual( Tested.merge_new_only( {}, { "a": 10, "c": 3 } ), { "a": 10, "c": 3 } );
 		assert.deepEqual( Tested.merge_new_only( {}, {}  ), {} );
 		assert.deepEqual( Tested.merge_new_only( { "a": 10, "c": 3 }, { "a": 10, "c": 3 } ), { "a": 10, "c": 3 } );
+		
+		// Special case for "Volumes/Devices"
+		assert.deepEqual( Tested.merge_new_only( { "a": 10, "Volumes": [ { "DeviceName": "abc", "VolumeSize": 0 } ] }, { "a": 10, "Volumes": [ { "DeviceName": "abc", "VolumeSize": 99 }, { "DeviceName": "def", "VolumeSize": 123 } ] } ), { "a": 10, "Volumes": [ { "DeviceName": "abc", "VolumeSize": 99 }, { "DeviceName": "def", "VolumeSize": 123 } ] } );
 	});
 	
 	it('state_get_node_public_ip', function() {
