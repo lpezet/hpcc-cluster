@@ -25,7 +25,23 @@ describe('Cloud',function(){
 		it('basic', function(done) {
 			var oClientMock = {
 					getParameter: function( pParams, pCallback ) {
+						pCallback( null, { Parameter: {} } );
+					},
+					putParameter: function( pParams, pCallback ) {
 						pCallback( null, {} );
+					}
+			}
+			var oTested = new TestedClass( Logger, { ssm: oClientMock } );
+			oTested.secure_storage_setup( {} ).then( function() {
+				done();
+			}, function( pError ) {
+				done( pError );
+			})
+		});
+		it('parameter not found', function(done) {
+			var oClientMock = {
+					getParameter: function( pParams, pCallback ) {
+						pCallback( { code: "ParameterNotFound" }, null );
 					},
 					putParameter: function( pParams, pCallback ) {
 						pCallback( null, {} );
@@ -275,7 +291,7 @@ describe('Cloud',function(){
 						pCallback( null, {} );
 					},
 					waitFor: function( pParams, pCallback) {
-						pCallback( new Error(), {} );
+						pCallback( new Error(), null );
 					}
 			}
 			var oTested = new TestedClass( Logger, { ec2: oClientMock } );
@@ -334,7 +350,7 @@ describe('Cloud',function(){
 						pCallback( null, {} );
 					},
 					waitFor: function( pParams, pCallback) {
-						pCallback( new Error(), {} );
+						pCallback( new Error(), null );
 					}
 			}
 			var oTested = new TestedClass( Logger, { ec2: oClientMock } );
@@ -397,7 +413,7 @@ describe('Cloud',function(){
 		it('client error createStack', function(done) {
 			var oClientMock = {
 					createStack: function( pParams, pCallback ) {
-						pCallback( new Error(), {} );
+						pCallback( new Error(), null );
 					},
 					waitFor: function( pParams, pCallback) {
 						pCallback( null, {} );
@@ -416,7 +432,7 @@ describe('Cloud',function(){
 						pCallback( null, {} );
 					},
 					waitFor: function( pParams, pCallback) {
-						pCallback( new Error(), {} );
+						pCallback( new Error(), null );
 					}
 			}
 			var oTested = new TestedClass( Logger, { cf: oClientMock } );
