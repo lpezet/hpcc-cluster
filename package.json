@@ -19,7 +19,8 @@
     "url": "git+https://github.com/lpezet/hpcc-cluster.git"
   },
   "keywords": [
-    "hpcc-systems","hpcc"
+    "hpcc-systems",
+    "hpcc"
   ],
   "author": "Luke Pezet <lpezet@gmail.com>",
   "bugs": {
@@ -42,7 +43,7 @@
     "node": ">= 0.12.4"
   },
   "dependencies": {
-    "aws-sdk": "^2.282.1",
+    "aws-sdk": "^2.424.0",
     "external-ip": "^0.2.4",
     "js-yaml": "^3.8.2",
     "moniker": "^0.1.2",
@@ -61,12 +62,12 @@
     "yaml-cfn": "^0.2.0"
   },
   "devDependencies": {
-    "mocha": "^5.0.0",
     "chai": "^4.2.0",
     "chai-spies": "^1.0.0",
     "crypto": "^1.0.1",
     "doctoc": "^1.4.0",
-    "eslint": "^5.15.0",
+    "eslint": "^5.15.3",
+    "mocha": "^5.0.0",
     "nyc": "^13.3.0",
     "sinon": "^4.1.6",
     "yaml-cfn": "^0.2.0"
