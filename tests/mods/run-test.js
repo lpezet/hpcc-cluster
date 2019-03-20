@@ -307,7 +307,7 @@ describe('Run',function(){
     	};
     	var SSHClientMock = {
     			exec: function() {
-    				throw new Error('fake error');
+    				return Promise.resolve();
     			}
     	}
 		var oTested = new TestedClass( HpccClusterMock, Logger, UtilsMock, CloudClientMock, SSHClientMock );
