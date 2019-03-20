@@ -201,6 +201,76 @@ describe('Create',function(){
     	assert.equal( oActual, "Resources:\n  HPCCNodeEc2Instance:\n    Metadata:\n      \'AWS::CloudFormation::Init\':\n        001_CS:\n          commands:\n            001_test:\n              command: whoami\n");
 	});
 	
+	describe('estimate', function() {
+		it('basic', function(done) {
+			var HpccClusterMock = {
+	    			mod: function() {}
+	    	};
+	    	
+	    	var CloudClientMock = {
+	    			estimate_template_cost: function() {
+	    				return Promise.resolve();
+	    			}
+	    	};
+	    	
+	    	var oTested = new TestedClass( HpccClusterMock, Logger, Utils, CloudClientMock );
+	    	oTested.create_cloudformation_templates = function() {
+	    		return Promise.resolve();
+	    	}
+	    	var oActual = oTested.estimate( { Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
+			oActual.then( function() {
+				done();
+			}, function( pError ) {
+				done( pError );
+			});
+		});
+		it('error create cloudformation templates', function(done) {
+			var HpccClusterMock = {
+	    			mod: function() {}
+	    	};
+	    	
+	    	var CloudClientMock = {
+	    			estimate_template_cost: function() {
+	    				return Promise.resolve();
+	    			}
+	    	};
+	    	
+	    	var oTested = new TestedClass( HpccClusterMock, Logger, Utils, CloudClientMock );
+	    	oTested.create_cloudformation_templates = function() {
+	    		return Promise.reject();
+	    	}
+	    	var oActual = oTested.estimate( { Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
+			oActual.then( function() {
+				done( 'Expected rejection.');
+			}, function( pError ) {
+				done();
+			});
+		});
+		it('error cloud client', function(done) {
+			var HpccClusterMock = {
+	    			mod: function() {}
+	    	};
+	    	
+	    	var CloudClientMock = {
+	    			estimate_template_cost: function() {
+	    				return Promise.reject();
+	    			}
+	    	};
+	    	
+	    	var oTested = new TestedClass( HpccClusterMock, Logger, Utils, CloudClientMock );
+	    	oTested.create_cloudformation_templates = function() {
+	    		return Promise.resolve();
+	    	}
+	    	var oActual = oTested.estimate( { Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
+			oActual.then( function() {
+				done( 'Expected rejection.');
+			}, function( pError ) {
+				done();
+			});
+		});
+	});
+	
+	
 	it('secure storage reject',function(done){
 		var HpccClusterMock = {
     			mod: function() {},

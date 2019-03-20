@@ -21,6 +21,43 @@ describe('Cloud',function(){
 		done();
 	});
 	
+	describe('estimate_template_cost', function() {
+		it('basic', function(done) {
+			var oClientMock = {
+					estimateTemplateCost: function( pParams, pCallback ) {
+						pCallback( null, {} );
+					}
+			}
+			var oTested = new TestedClass( Logger, { cf: oClientMock } );
+			oTested.estimate_template_cost( {} ).then( function() {
+				done();
+			}, function( pError ) {
+				done( pError );
+			})
+		});
+		it('client not provided', function(done) {
+			var oTested = new TestedClass( Logger, {} );
+			oTested.estimate_template_cost( {} ).then( function() {
+				done('Expected rejection.');
+			}, function( pError ) {
+				done();
+			})
+		});
+		it('client error estimateTemplateCost', function(done) {
+			var oClientMock = {
+					estimateTemplateCost: function( pParams, pCallback ) {
+						pCallback( new Error(), null );
+					}
+			}
+			var oTested = new TestedClass( Logger, { cf: oClientMock } );
+			oTested.estimate_template_cost( {} ).then( function() {
+				done('Expected rejection.');
+			}, function( pError ) {
+				done();
+			})
+		});
+	});
+	
 	describe('secure_storage_setup', function() {
 		it('basic', function(done) {
 			var oClientMock = {
