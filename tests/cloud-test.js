@@ -495,6 +495,19 @@ describe('Cloud',function(){
 				done( pError );
 			})
 		});
+		it('stack does not exist', function(done) {
+			var oClientMock = {
+					describeStacks: function( pParams, pCallback ) {
+						pCallback( { code: "ValidationError" } , null );
+					}
+			}
+			var oTested = new TestedClass( Logger, { cf: oClientMock } );
+			oTested.stack_exists( {} ).then( function() {
+				done( 'Expected rejection.');
+			}, function( pError ) {
+				done();
+			})
+		});
 		it('client not provided', function(done) {
 			var oTested = new TestedClass( Logger, {} );
 			oTested.stack_exists( {} ).then( function() {
@@ -555,8 +568,122 @@ describe('Cloud',function(){
 		});
 	});
 	
-	//get_all_ec2_instance_ids_from_cluster
-	//get_all_ec2_instance_ids_from_stack
+	describe('get_all_ec2_instance_ids_from_cluster', function() {
+		it('basic', function(done) {
+			var oTested = new TestedClass( Logger, {} );
+			oTested.get_sub_stacks = function() {
+				return Promise.resolve([ { ResourceType: "AWS::CloudFormation::Stack", PhysicalResourceId: "Stack123" } ] );
+			}
+			oTested.get_all_ec2_instance_ids_from_stacks = function() {
+				return Promise.resolve();
+			}
+			oTested.get_all_ec2_instance_ids_from_cluster( {} ).then( function() {
+				done();
+			}, function( pError ) {
+				done( pError );
+			})
+		});
+		it('client error get_sub_stacks', function(done) {
+			var oTested = new TestedClass( Logger, {} );
+			oTested.get_sub_stacks = function() {
+				return Promise.reject();
+			}
+			oTested.get_all_ec2_instance_ids_from_cluster( {} ).then( function() {
+				done('Expected rejection.');
+			}, function( pError ) {
+				done();
+			})
+		});
+		it('client error get_all_ec2_instance_ids_from_stacks', function(done) {
+			var oTested = new TestedClass( Logger, {} );
+			oTested.get_sub_stacks = function() {
+				return Promise.resolve([ { ResourceType: "AWS::CloudFormation::Stack", PhysicalResourceId: "Stack123" } ] );
+			}
+			oTested.get_all_ec2_instance_ids_from_stacks = function() {
+				return Promise.reject();
+			}
+			oTested.get_all_ec2_instance_ids_from_cluster( {} ).then( function() {
+				done('Expected rejection.');
+			}, function( pError ) {
+				done();
+			})
+		});
+	});
+	
+	describe('get_sub_stacks', function() {
+		it('basic', function(done) {
+			var oClientMock = {
+					listStackResources: function( pParams, pCallback ) {
+						pCallback( null, { StackResourceSummaries: [ { ResourceType: "AWS::CloudFormation::Stack", PhysicalResourceId: "Stack123" } ] } );
+					}
+			}
+			var oTested = new TestedClass( Logger, { cf: oClientMock } );
+			oTested.get_sub_stacks( {} ).then( function() {
+				done();
+			}, function( pError ) {
+				done( pError );
+			})
+		});
+		it('client not provided', function(done) {
+			var oTested = new TestedClass( Logger, {} );
+			oTested.get_sub_stacks( {} ).then( function() {
+				done('Expected rejection.');
+			}, function( pError ) {
+				done();
+			})
+		});
+		it('client error listStackResources', function(done) {
+			var oClientMock = {
+					listStackResources: function( pParams, pCallback ) {
+						pCallback( new Error(), null );
+					}
+			}
+			var oTested = new TestedClass( Logger, { cf: oClientMock } );
+			oTested.get_sub_stacks( {} ).then( function() {
+				done('Expected rejection.');
+			}, function( pError ) {
+				done();
+			})
+		});
+	});
+	
+	describe('get_all_ec2_instance_ids_from_stack', function() {
+		it('basic', function(done) {
+			var oClientMock = {
+					listStackResources: function( pParams, pCallback ) {
+						pCallback( null, { StackResourceSummaries: [ { ResourceType: "AWS::EC2::Instance", PhysicalResourceId: "Instance123" } ] } );
+					}
+			}
+			var oTested = new TestedClass( Logger, { cf: oClientMock } );
+			oTested.get_all_ec2_instance_ids_from_stack( {} ).then( function() {
+				done();
+			}, function( pError ) {
+				done( pError );
+			})
+		});
+		it('client not provided', function(done) {
+			var oTested = new TestedClass( Logger, {} );
+			oTested.get_all_ec2_instance_ids_from_stack( {} ).then( function() {
+				done('Expected rejection.');
+			}, function( pError ) {
+				done();
+			})
+		});
+		it('client error listStackResources', function(done) {
+			var oClientMock = {
+					listStackResources: function( pParams, pCallback ) {
+						pCallback( new Error(), null );
+					}
+			}
+			var oTested = new TestedClass( Logger, { cf: oClientMock } );
+			oTested.get_all_ec2_instance_ids_from_stack( {} ).then( function() {
+				done('Expected rejection.');
+			}, function( pError ) {
+				done();
+			})
+		});
+	});
+	
 	//get_all_ec2_instance_ids_from_stacks
 	
 	describe('find_PublicIp', function() {
@@ -608,7 +735,7 @@ describe('Cloud',function(){
 		it('basic', function(done) {
 			var oClientMock = {
 					describeInstances: function( pParams, pCallback ) {
-						pCallback( null, { Reservations: { "Instance123": { Instances: [ { Tags: [ { Key: "Name", Value: "Master" } ] } ] } } }  );
+						pCallback( null, { Reservations: { "Instance123": { Instances: [ { Tags: [ { Key: "Fake", Value: "MoreFake" },  { Key: "Name", Value: "Master" } ] } ] } } }  );
 					},
 					describeInstanceStatus: function( pParams, pCallback ) {
 						pCallback( null, { InstanceStatuses: [ { InstanceId: "Instance123", SystemStatus: { Status: "Sleeping" }, InstanceStatus: { Status: "LikeALog" }, InstanceState: { Name: "Sleeper" } } ] } );
