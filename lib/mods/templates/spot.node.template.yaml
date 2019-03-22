@@ -9,7 +9,7 @@ Parameters:
     Description: Number of nodes
     Type: Integer
 Resources:
-  HPCCNodeEc2SpotFleet:
+  HPCCCluster:
     Type: AWS::EC2::SpotFleet
     Metadata:
       Comment1: HPCC Systems Fleet
@@ -75,77 +75,77 @@ Resources:
         #end
     Properties:
       SpotFleetRequestConfigData:
-        # ????
-        IamFleetRole: ${Instance.IamRole}
+        AllocationStrategy: "lowestPrice"
+        IamFleetRole: ${Instance.IamFleetRole}
         SpotPrice: -----> TODO <-------
         TargetCapacity:
           Ref: ParamCapacity
         LaunchSpecifications:
-          BlockDeviceMappings:
-          - DeviceName: /dev/xvda
-            Ebs:
-              DeleteOnTermination: true
-              VolumeSize: '8'
-              VolumeType: gp2
-          #foreach( $vol in $Node.Volumes )
-          #if( $vol.Type != 'ephemeral' )
-          - DeviceName: ${vol.DeviceName}
-            Ebs:
-              DeleteOnTermination: true
-              #if( $vol.SnapshotId )
-              SnapshotId: ${vol.SnapshotId}
-              #else
-              VolumeSize: '${vol.Size}'
-              Encrypted: #default($vol.Encrypted,"false")
+          - BlockDeviceMappings:
+              - DeviceName: /dev/xvda
+                Ebs:
+                  DeleteOnTermination: true
+                  VolumeSize: '8'
+                  VolumeType: gp2
+              #foreach( $vol in $Node.Volumes )
+              #if( $vol.Type != 'ephemeral' )
+              - DeviceName: ${vol.DeviceName}
+                Ebs:
+                  DeleteOnTermination: true
+                  #if( $vol.SnapshotId )
+                  SnapshotId: ${vol.SnapshotId}
+                  #else
+                  VolumeSize: '${vol.Size}'
+                  Encrypted: #default($vol.Encrypted,"false")
+                  #end
+                  VolumeType: #default($vol.Type,"gp2")
+                  #if( $vol.Type == 'io1' )
+                  Iops: ${vol.Iops}
+                  #end
               #end
-              VolumeType: #default($vol.Type,"gp2")
-              #if( $vol.Type == 'io1' )
-              Iops: ${vol.Iops}
               #end
-          #end
-          #end
-          EbsOptimized: true
-          IamInstanceProfile: ${Instance.IamRole}
-          ImageId: ${Instance.ImageId}
-          InstanceType: ${Instance.Type}
-          KeyName: ${Instance.KeyName}
-          Monitoring:
-            Enabled: true
-          NetworkInterfaces:
-          - AssociatePublicIpAddress: true
-            DeviceIndex: 0
-            SubnetId: ${Vpc.SubnetId}
-            GroupSet: 
-            - ${Vpc.SecurityGroupId}
-            PrivateIpAddresses:
-            # ---> TODO <----
-            #foreach( $ip in $Node.PrivateIpAddresses )
-            - PrivateIpAddress: ${ip}
-            #end
-          TagSpecifications:
-          - ResourceType: instance
-            Tags:
-            - Value:
-                Fn::Join:
-                - '-'
-                - - ${Cluster.Name}
-                  - Ref: ParamNodeName
-              Key: Name
-          UserData:
-            Fn::Base64:
-              !Sub |
-                #!/bin/bash -xe
-                yum update -y
-                yum install -y aws-cfn-bootstrap
-                # Install the files and packages from the metadata
-                /opt/aws/bin/cfn-init -v --stack \${AWS::StackName} --resource HPCCNodeEc2Instance --region \${AWS::Region}
-                # Signal the status from cfn-init
-                /opt/aws/bin/cfn-signal -e $? --stack \${AWS::StackName} --resource HPCCNodeEc2Instance --region \${AWS::Region}
+            EbsOptimized: true
+            IamInstanceProfile: ${Instance.IamRole}
+            ImageId: ${Instance.ImageId}
+            InstanceType: ${Instance.Type}
+            KeyName: ${Instance.KeyName}
+            Monitoring:
+              Enabled: true
+            NetworkInterfaces:
+              - AssociatePublicIpAddress: true
+                DeviceIndex: 0
+                SubnetId: ${Vpc.SubnetId}
+                GroupSet: 
+                  - ${Vpc.SecurityGroupId}
+                #PrivateIpAddresses:
+                # ---> TODO <----
+                #foreach( $ip in $Node.PrivateIpAddresses )
+                #  - PrivateIpAddress: ${ip}
+                #end
+            TagSpecifications:
+              - ResourceType: instance
+                Tags:
+                - Value:
+                    Fn::Join:
+                    - '-'
+                    - - ${Cluster.Name}
+                      - Ref: ParamNodeName
+                  Key: Name
+            UserData:
+              Fn::Base64:
+                !Sub |
+                  #!/bin/bash -xe
+                  yum update -y
+                  yum install -y aws-cfn-bootstrap
+                  # Install the files and packages from the metadata
+                  /opt/aws/bin/cfn-init -v --stack \${AWS::StackName} --resource HPCCCluster --region \${AWS::Region}
+                  # Signal the status from cfn-init
+                  /opt/aws/bin/cfn-signal -e $? --stack \${AWS::StackName} --resource HPCCCluster --region \${AWS::Region}
           
     CreationPolicy:
       ResourceSignal:
         Timeout: PT15M
-Outputs:
+#Outputs:
   #InstanceId:
   #  Description: Instance Id
   #  Value:

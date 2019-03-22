@@ -9,7 +9,7 @@ Parameters:
     Description: Private IP Address
     Type: String
 Resources:
-  HPCCNodeEc2Instance:
+  HPCCCluster:
     Type: AWS::EC2::Instance
     Metadata:
       Comment1: HPCC Systems Node

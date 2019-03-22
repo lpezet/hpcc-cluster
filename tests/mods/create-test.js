@@ -114,10 +114,10 @@ describe('Create',function(){
 					}
 				}
 		};
-    	var oTemplate = "Resources:\n  HPCCNodeEc2Instance:\n    Metadata:\n      \'AWS::CloudFormation::Init\':\n";
+    	var oTemplate = "Resources:\n  HPCCCluster:\n    Metadata:\n      \'AWS::CloudFormation::Init\':\n";
     	var oActual = oTested._injectConfigSets( oClusterConfig, oTemplate );
     	assert.isNotNull( oActual );
-    	assert.equal( oActual, "Resources:\n  HPCCNodeEc2Instance:\n    Metadata:\n      \'AWS::CloudFormation::Init\':\n        001_CS:\n          commands:\n            001_test:\n              command: whoami\n");
+    	assert.equal( oActual, "Resources:\n  HPCCCluster:\n    Metadata:\n      \'AWS::CloudFormation::Init\':\n        001_CS:\n          commands:\n            001_test:\n              command: whoami\n");
 	});
 	
 	it('inject config sets',function(){
@@ -150,7 +150,7 @@ describe('Create',function(){
 		};
     	var oTemplate = {
     			Resources: {
-    				HPCCNodeEc2Instance: {
+    				HPCCCluster: {
     					Metadata: {
     						"AWS::CloudFormation::Init": {}
     					}
@@ -159,7 +159,7 @@ describe('Create',function(){
     	};
     	var oActual = oTested._injectConfigSets( oClusterConfig, oTemplate );
     	assert.isNotNull( oActual );
-    	assert.equal( oActual, "Resources:\n  HPCCNodeEc2Instance:\n    Metadata:\n      \'AWS::CloudFormation::Init\':\n        001_CS:\n          commands:\n            001_test:\n              command: whoami\n");
+    	assert.equal( oActual, "Resources:\n  HPCCCluster:\n    Metadata:\n      \'AWS::CloudFormation::Init\':\n        001_CS:\n          commands:\n            001_test:\n              command: whoami\n");
 	});
 
 	it('inject config sets from url',function(){
@@ -189,7 +189,7 @@ describe('Create',function(){
 		};
     	var oTemplate = {
     			Resources: {
-    				HPCCNodeEc2Instance: {
+    				HPCCCluster: {
     					Metadata: {
     						"AWS::CloudFormation::Init": {}
     					}
@@ -198,7 +198,7 @@ describe('Create',function(){
     	};
     	var oActual = oTested._injectConfigSets( oClusterConfig, oTemplate );
     	assert.isNotNull( oActual );
-    	assert.equal( oActual, "Resources:\n  HPCCNodeEc2Instance:\n    Metadata:\n      \'AWS::CloudFormation::Init\':\n        001_CS:\n          commands:\n            001_test:\n              command: whoami\n");
+    	assert.equal( oActual, "Resources:\n  HPCCCluster:\n    Metadata:\n      \'AWS::CloudFormation::Init\':\n        001_CS:\n          commands:\n            001_test:\n              command: whoami\n");
 	});
 	
 	describe('estimate', function() {
