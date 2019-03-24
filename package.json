@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint lib/ tests/",
     "fix": "eslint lib/ tests/ --fix",
-    "pretest": "npm run lint; ([ -d .tests ] && rm -rf .tests); mkdir .tests; cd .tests && mocha ../tests/ -name \"*-test.js\" --recursive",
+    "pretest": "npm run lint",
     "test": "nyc mocha --bail --check-leaks --reporter spec tests/ -name \"*-test.js\" --recursive",
     "posttest": "nyc check-coverage",
     "integration-test": "mocha ./integration-tests/*-test.js",
