@@ -9,7 +9,7 @@ const TestedClass = require("../../lib/mods/scp");
 const assert = require('chai').assert;
 
 
-describe('Run',function(){
+describe('Scp',function(){
 	before(function(done){
 		done();
 	});
