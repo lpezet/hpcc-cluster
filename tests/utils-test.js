@@ -3,7 +3,7 @@ const assert = require('chai').assert;
 const TestedClass = new require('../lib/utils');
 const Tested = new TestedClass();
 
-describe('HpccCluster',function(){
+describe('Utils',function(){
 	
 	before(function(done){
 		done();

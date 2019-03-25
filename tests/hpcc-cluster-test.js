@@ -126,7 +126,7 @@ describe('HpccCluster',function(){
 	});
 	
 	describe('refresh_state', function() {
-		it('no_status_mod', function() {
+		it('no_status_mod', function(done) {
 			var oHPCCCluster = new HPCCClusterClass( Logger, DEFAULT_ERROR_HANDLER, Utils );
 			oHPCCCluster.refresh_state().then(function() {
 				done('Expected error.');
@@ -134,7 +134,7 @@ describe('HpccCluster',function(){
 				done();
 			})
 		});
-		it('status_mod', function() {
+		it('status_mod', function(done) {
 			var oHPCCCluster = new HPCCClusterClass( Logger, DEFAULT_ERROR_HANDLER, Utils );
 			oHPCCCluster['status'] = function() {
 				return Promise.resolve( {} );
