@@ -7,6 +7,7 @@ const Utils = new UtilsClass();
 const TestedClass = require("../../lib/mods/scp");
 
 const assert = require('chai').assert;
+const path = require('path');
 
 
 describe('Scp',function(){
@@ -42,7 +43,7 @@ describe('Scp',function(){
     			source: "/tmp/test.txt",
     			target: "hpccdemo@master:/tmp/target.txt"
     	};
-    	oTested.scp( { KeyPairFile: '/dev/null' }, oParams ).then( function( data ) {
+    	oTested.scp( { KeyPairFile: path.resolve(__dirname, 'test.key') }, oParams ).then( function( data ) {
     		done();
     	}, function( err ) {
     		done( err );
