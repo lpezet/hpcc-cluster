@@ -111,7 +111,7 @@ describe('Init',function(){
 		
 		var options = { parent: {} };
 		options.WorkDir = WORK_DIR;
-    	var oInit = oTested.init( options );
+    	var oInit = oTested.handle( {}, options );
     	oInit.then( function() {
     		if ( ! Fs.existsSync( WORK_DIR ) ) {
     			done('Work dir missing.')
@@ -143,8 +143,8 @@ describe('Init',function(){
 		
 		var options = { parent: {} };
 		options.WorkDir = WORK_DIR;
-    	oTested.init( options ).then( function() {
-    		oTested.init( options ).then( function() {
+    	oTested.handle( {}, options ).then( function() {
+    		oTested.handle( {}, options ).then( function() {
     			done('Expecting rejection.');
     		}, function( err2 ) {
     			done();

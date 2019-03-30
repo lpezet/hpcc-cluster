@@ -122,7 +122,7 @@ describe('Status',function(){
 		var oTested = new TestedClass( HpccClusterMock, Logger, UtilsMock, CloudClientMock ); //, CF, EC2 );
 		
 		var options = { parent: {} };
-    	var oActual = oTested.status( oClusterConfig, options );
+    	var oActual = oTested.handle( oClusterConfig, options );
     	
     	oActual.then( function() {
     		try {

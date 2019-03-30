@@ -120,7 +120,7 @@ describe('Halt',function(){
 		
 		
     	var options = { parent: {} };
-    	var oActual = oTested.halt( oClusterConfig, options );
+    	var oActual = oTested.handle( oClusterConfig, options );
     	
     	oActual.then( function() {
     		done();

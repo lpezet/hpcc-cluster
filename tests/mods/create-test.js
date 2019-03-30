@@ -210,6 +210,9 @@ describe('Create',function(){
 	    	var CloudClientMock = {
 	    			estimate_template_cost: function() {
 	    				return Promise.resolve();
+	    			},
+	    			s3_upload_file: function() {
+	    				return Promise.resolve("TODO: dunno what's returned here.");
 	    			}
 	    	};
 	    	
@@ -217,7 +220,7 @@ describe('Create',function(){
 	    	oTested.create_cloudformation_templates = function() {
 	    		return Promise.resolve();
 	    	}
-	    	var oActual = oTested.estimate( { Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
+	    	var oActual = oTested.handle_estimate( { Cluster: { Name: "talentedmint" }, AWS: { S3Bucket: "testbucket", Username: "testuser" }, Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
 			oActual.then( function() {
 				done();
 			}, function( pError ) {
@@ -239,7 +242,7 @@ describe('Create',function(){
 	    	oTested.create_cloudformation_templates = function() {
 	    		return Promise.reject();
 	    	}
-	    	var oActual = oTested.estimate( { Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
+	    	var oActual = oTested.handle_estimate( { Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
 			oActual.then( function() {
 				done( 'Expected rejection.');
 			}, function( pError ) {
@@ -261,7 +264,7 @@ describe('Create',function(){
 	    	oTested.create_cloudformation_templates = function() {
 	    		return Promise.resolve();
 	    	}
-	    	var oActual = oTested.estimate( { Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
+	    	var oActual = oTested.handle_estimate( { Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
 			oActual.then( function() {
 				done( 'Expected rejection.');
 			}, function( pError ) {
@@ -308,7 +311,7 @@ describe('Create',function(){
     	
     	var oTested = new TestedClass( HpccClusterMock, Logger, Utils, CloudClientMock );
     	var options = { parent: {} };
-		var oActual = oTested.create( TEST_CLUSTER_CONFIG, options );
+		var oActual = oTested.handle_create( TEST_CLUSTER_CONFIG, options );
 		oActual.then( function() {
 			done( 'Expecting rejection.' );
 		}, function( pError ) {
@@ -359,7 +362,7 @@ describe('Create',function(){
     	var options = { parent: {} };
     	//var oInit = oHPCCCluster.init( options );
     	//oInit.then( function() {
-    		var oActual = oTested.create( TEST_CLUSTER_CONFIG, options );
+    		var oActual = oTested.handle_create( TEST_CLUSTER_CONFIG, options );
 			oActual.then( function() {
 				done();
 			}, function( pError ) {

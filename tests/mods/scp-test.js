@@ -43,7 +43,7 @@ describe('Scp',function(){
     			source: "/tmp/test.txt",
     			target: "hpccdemo@master:/tmp/target.txt"
     	};
-    	oTested.scp( { KeyPairFile: path.resolve(__dirname, 'test.key') }, oParams ).then( function( data ) {
+    	oTested.handle( { KeyPairFile: path.resolve(__dirname, 'test.key') }, oParams ).then( function( data ) {
     		done();
     	}, function( err ) {
     		done( err );

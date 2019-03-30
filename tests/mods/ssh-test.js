@@ -63,7 +63,7 @@ describe('Ssh',function(){
     	
 		var oTested = new TestedClass( HpccClusterMock, Logger, Utils, SSHClientMock );
     	var options = { parent: {}, target: 'slave', cmd:'hostname' };
-    	oTested.ssh( oClusterConfig, options ).then( function() {
+    	oTested.handle( oClusterConfig, options ).then( function() {
     		done('Expecting rejection.');
     	}, function( pError ) {
     		done();
@@ -89,7 +89,7 @@ describe('Ssh',function(){
     	
 		var oTested = new TestedClass( HpccClusterMock, Logger, Utils, SSHClientMock );
     	var options = { parent: {}, target: 'slave', cmd:'hostname' };
-    	oTested.ssh( oClusterConfig, options ).then( function() {
+    	oTested.handle( oClusterConfig, options ).then( function() {
     		done('Expecting rejection.');
     	}, function( pError ) {
     		done();
@@ -115,7 +115,7 @@ describe('Ssh',function(){
     	
 		var oTested = new TestedClass( HpccClusterMock, Logger, Utils, SSHClientMock );
     	var options = { parent: {}, target: 'slave', cmd:'hostname' };
-    	oTested.ssh( oClusterConfig, options ).then( function() {
+    	oTested.handle( oClusterConfig, options ).then( function() {
     		done();
     	}, function( pError ) {
     		done( pError );

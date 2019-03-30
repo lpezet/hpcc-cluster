@@ -242,7 +242,7 @@ describe('Run',function(){
 		
     	
     	var options = { parent: {}, target: 'not-matching-any-target', cmd:'hostname' };
-    	var oActual = oTested.run( oClusterConfig, options );
+    	var oActual = oTested.handle( oClusterConfig, options );
     	
     	oActual.then( function() {
     		done();
@@ -279,7 +279,7 @@ describe('Run',function(){
 		
     	
     	try {
-    		oTested.run( oClusterConfig, { cmd: "whoami" } );
+    		oTested.handle( oClusterConfig, { cmd: "whoami" } );
     		done( 'Expecting error' );
     	} catch( e ) {
     		done();
@@ -314,7 +314,7 @@ describe('Run',function(){
 		
     	
     	try {
-    		oTested.run( oClusterConfig, { target: "master" } );
+    		oTested.handle( oClusterConfig, { target: "master" } );
     		done( 'Expecting error' );
     	} catch( e ) {
     		done();
@@ -349,7 +349,7 @@ describe('Run',function(){
 		
     	
     	var options = { parent: {}, target: 'this-is-a-test-node', cmd:'hostname' };
-    	var oActual = oTested.run( oClusterConfig, options );
+    	var oActual = oTested.handle( oClusterConfig, options );
     	
     	oActual.then( function() {
     		done( 'Expecting error' );
@@ -386,7 +386,7 @@ describe('Run',function(){
 		
     	
     	var options = { parent: {}, target: 'this-is-a-test-node', cmd:'hostname' };
-    	var oActual = oTested.run( oClusterConfig, options );
+    	var oActual = oTested.handle( oClusterConfig, options );
     	
     	oActual.then( function() {
     		done( 'Expecting error' );
@@ -423,7 +423,7 @@ describe('Run',function(){
 		
     	
     	var options = { parent: {}, target: 'this-is-a-test-node', cmd:'hostname' };
-    	var oActual = oTested.run( oClusterConfig, options );
+    	var oActual = oTested.handle( oClusterConfig, options );
     	
     	oActual.then( function() {
     		done();

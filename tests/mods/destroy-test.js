@@ -7,7 +7,7 @@ describe('Destroy', function() {
     			mod: function() {}
     	};
 		var oTested = new TestedClass( HpccClusterMock );
-		oTested.destroy( {} ).then(function() {
+		oTested.handle( {} ).then(function() {
 			done('Expected rejection.');
 		}, function( pError ) {
 			done();

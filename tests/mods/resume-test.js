@@ -138,7 +138,7 @@ describe('Resume',function(){
     	var oTested = new TestedClass( HpccClusterMock, Logger, UtilsMock, CloudClientMock );
     	
     	var options = { parent: {} };
-    	var oActual = oTested.resume( oClusterConfig, options );
+    	var oActual = oTested.handle( oClusterConfig, options );
     	
     	oActual.then( function() {
     		done();
