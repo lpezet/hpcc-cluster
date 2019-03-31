@@ -55,7 +55,7 @@ beforeEach(function(done) {
 
 rmdirR = function( pPath ) {
 	return exec('rm -rf ' + pPath,function(err,out) { 
-	  console.log(out); err && console.log(err); 
+	  //console.log(out); err && console.log(err); 
 	});
 };
 
@@ -77,6 +77,10 @@ clearHpccClusterInit = function() {
  * ======================================================
  */
 describe('Run',function(){
+	
+	const INVALID_DESCRIBE_INSTANCES_RESPONSE = {
+			"TotallyInvalid": {}
+	};
 	
 	const DESCRIBE_INSTANCES_RESPONSE = {
 		    "Reservations": [
@@ -213,6 +217,146 @@ describe('Run',function(){
 	after(function(done) {
 		done();
 	});
+	
+	it('exception in cloud get_all_ec2_instance_ids_from_cluster', function(done) {
+		var HpccClusterMock = {
+    			mod: function() {},
+				refresh_state: function() {
+    				return Promise.resolve();
+    			}
+    	}
+    	
+    	var UtilsMock = {
+    	};
+    	
+    	var CloudClientMock = {
+    			//describe_instances: function() {
+    			//	return Promise.resolve( DESCRIBE_INSTANCES_RESPONSE );
+    			//},
+    			get_all_ec2_instance_ids_from_cluster: function() {
+    				throw new Error('test error');
+    			}
+    	};
+    	var SSHClientMock = {
+    			exec: function() {
+    				return Promise.resolve( 'TODO: dunno what data looks like.' );
+    			}
+    	}
+		var oTested = new TestedClass( HpccClusterMock, Logger, UtilsMock, CloudClientMock, SSHClientMock );
+		var options = { parent: {}, target: 'not-matching-any-target', cmd:'hostname' };
+    	var oActual = oTested.handle( oClusterConfig, options );
+    	
+    	oActual.then( function() {
+    		done('Expecting error.');
+    	}, function( pError ) {
+    		done();
+    	});
+	});
+	
+	it('error cloud get_all_ec2_instance_ids_from_cluster', function(done) {
+		var HpccClusterMock = {
+    			mod: function() {},
+				refresh_state: function() {
+    				return Promise.resolve();
+    			}
+    	}
+    	
+    	var UtilsMock = {
+    	};
+    	
+    	var CloudClientMock = {
+    			//describe_instances: function() {
+    			//	return Promise.resolve( DESCRIBE_INSTANCES_RESPONSE );
+    			//},
+    			get_all_ec2_instance_ids_from_cluster: function() {
+    				return Promise.reject( { error: {} } );
+    			}
+    	};
+    	var SSHClientMock = {
+    			exec: function() {
+    				return Promise.resolve( 'TODO: dunno what data looks like.' );
+    			}
+    	}
+		var oTested = new TestedClass( HpccClusterMock, Logger, UtilsMock, CloudClientMock, SSHClientMock );
+		var options = { parent: {}, target: 'not-matching-any-target', cmd:'hostname' };
+    	var oActual = oTested.handle( oClusterConfig, options );
+    	
+    	oActual.then( function() {
+    		done('Expecting error.');
+    	}, function( pError ) {
+    		done();
+    	});
+	});
+	
+	it('unexpected cloud describe_instances response', function(done) {
+		var HpccClusterMock = {
+    			mod: function() {},
+				refresh_state: function() {
+    				return Promise.resolve();
+    			}
+    	}
+    	
+    	var UtilsMock = {
+    	};
+    	
+    	var CloudClientMock = {
+    			describe_instances: function() {
+    				return Promise.resolve( INVALID_DESCRIBE_INSTANCES_RESPONSE );
+    			},
+    			get_all_ec2_instance_ids_from_cluster: function() {
+    				return Promise.resolve( ['abc', 'def' ]);
+    			}
+    	};
+    	var SSHClientMock = {
+    			exec: function() {
+    				return Promise.resolve( 'TODO: dunno what data looks like.' );
+    			}
+    	}
+		var oTested = new TestedClass( HpccClusterMock, Logger, UtilsMock, CloudClientMock, SSHClientMock );
+		var options = { parent: {}, target: 'not-matching-any-target', cmd:'hostname' };
+    	var oActual = oTested.handle( oClusterConfig, options );
+    	
+    	oActual.then( function() {
+    		done('Expecting error.');
+    	}, function( pError ) {
+    		done();
+    	});
+	});
+	
+	it('error cloud describe_instances', function(done) {
+		var HpccClusterMock = {
+    			mod: function() {},
+				refresh_state: function() {
+    				return Promise.resolve();
+    			}
+    	}
+    	
+    	var UtilsMock = {
+    	};
+    	
+    	var CloudClientMock = {
+    			describe_instances: function() {
+    				return Promise.reject( { error: {} } );
+    			},
+    			get_all_ec2_instance_ids_from_cluster: function() {
+    				return Promise.resolve( ['abc', 'def' ]);
+    			}
+    	};
+    	var SSHClientMock = {
+    			exec: function() {
+    				return Promise.resolve( 'TODO: dunno what data looks like.' );
+    			}
+    	}
+		var oTested = new TestedClass( HpccClusterMock, Logger, UtilsMock, CloudClientMock, SSHClientMock );
+		var options = { parent: {}, target: 'not-matching-any-target', cmd:'hostname' };
+    	var oActual = oTested.handle( oClusterConfig, options );
+    	
+    	oActual.then( function() {
+    		done('Expecting error.');
+    	}, function( pError ) {
+    		done();
+    	});
+	})
 	
 	it('no matching target', function(done) {
 		var HpccClusterMock = {
