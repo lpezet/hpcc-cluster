@@ -13,9 +13,13 @@ const assert = require('chai').assert;
 const os = require('os');
 
 
+const load_test_config = function() {
+	return yamlParse( Fs.readFileSync( TEST_CONFIG_FILE_PATH, {encoding: 'utf8'}) );
+}
+
 //if ( ! Fs.existsSync( TEST_DIR ) ) Fs.mkdirSync( TEST_DIR );
 const TEST_CONFIG_FILE_PATH = path.resolve(__dirname, "test.cluster.config");
-var TEST_CLUSTER_CONFIG = yamlParse( Fs.readFileSync( TEST_CONFIG_FILE_PATH, {encoding: 'utf8'}) );
+var TEST_CLUSTER_CONFIG = load_test_config();
 /*
 const HandlerClass = require('../../lib/handler');
 class DefaultErrorHandler extends HandlerClass {
@@ -227,6 +231,32 @@ describe('Create',function(){
 				done( pError );
 			});
 		});
+		it('error estimate_template_cost', function(done) {
+			var HpccClusterMock = {
+	    			mod: function() {}
+	    	};
+	    	
+	    	var CloudClientMock = {
+	    			estimate_template_cost: function() {
+	    				return Promise.reject(new Error('test error'));
+	    			},
+	    			s3_upload_file: function() {
+	    				return Promise.resolve("TODO: dunno what's returned here.");
+	    			}
+	    	};
+	    	
+	    	var oTested = new TestedClass( HpccClusterMock, Logger, Utils, CloudClientMock );
+	    	oTested.create_cloudformation_templates = function() {
+	    		return Promise.resolve();
+	    	}
+	    	var oActual = oTested.handle_estimate( { Cluster: { Name: "talentedmint" }, AWS: { S3Bucket: "testbucket", Username: "testuser" }, Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
+			oActual.then( function() {
+				done('Expecting error.');
+			}, function( pError ) {
+				done();
+			});
+		});
+		
 		it('error create cloudformation templates', function(done) {
 			var HpccClusterMock = {
 	    			mod: function() {}
@@ -319,6 +349,63 @@ describe('Create',function(){
 		});
 	});
 	
+	it('should not upload during dry run', function(done) {
+		var HpccClusterMock = {
+    			mod: function() {},
+    			save_state: function() {
+    				return Promise.resolve();
+    			},
+    			refresh_state: function() {
+    				return Promise.resolve();
+    			}
+    	}
+    	var oS3UploadCalled = false;
+		var oSecureStorageCalled = false;
+		
+    	var CloudClientMock = {
+    			stack_exists: function() {
+    				return Promise.resolve();
+    			},
+    			get_all_ec2_instance_ids_from_cluster: function() {
+    				return Promise.resolve( ['abc', 'def' ]);
+    			},
+    			describe_ec2_status: function( pEC2Client, pInstanceIds, pOutputToConsole ) {
+    				return Promise.resolve('TODO: dunno what data looks like.');
+    			},
+    			s3_upload_file: function() {
+    				oS3UploadCalled = true;
+    				return Promise.resolve("TODO: dunno what's returned here.");
+    			},
+    			secure_storage_setup: function() {
+    				oSecureStorageCalled = true;
+    				return Promise.resolve("TODO: dunno what's returned here.");
+    			},
+    			create_stack_to_completion: function() {
+    				return Promise.resolve("TODO: dunno what's returned here.");
+    			}
+    	};
+    	
+    	var oTested = new TestedClass( HpccClusterMock, Logger, Utils, CloudClientMock );
+    	
+    	var options = { parent: {} };
+    	const oConfig = load_test_config();
+    	oConfig['DryRun'] = true;
+		var oActual = oTested.handle_create( oConfig, options );
+		oActual.then( function() {
+			try {
+				assert.isFalse( oS3UploadCalled );
+				assert.isFalse( oSecureStorageCalled );
+				done();
+			} catch(e) {
+				done(e);
+			}
+		}, function( pError ) {
+			console.error('Failed!');
+			if ( pError ) console.error( pError );
+			done( pError );
+		});
+	});
+	
 	it('should create',function(done){
 		var HpccClusterMock = {
     			mod: function() {},
@@ -354,28 +441,16 @@ describe('Create',function(){
     			}
     	};
     	
-    	//var HpccCluster = new HpccClusterClass(DEFAULT_ERROR_HANDLER, Utils);
-		var oTested = new TestedClass( HpccClusterMock, Logger, Utils, CloudClientMock );
+    	var oTested = new TestedClass( HpccClusterMock, Logger, Utils, CloudClientMock );
     	
-		//Fs.mkdirSync( HpccCluster.mInternalConfig.LocalDir );
-	
-    	var options = { parent: {} };
-    	//var oInit = oHPCCCluster.init( options );
-    	//oInit.then( function() {
-    		var oActual = oTested.handle_create( TEST_CLUSTER_CONFIG, options );
-			oActual.then( function() {
-				done();
-			}, function( pError ) {
-				console.error('Failed!');
-				if ( pError ) console.error( pError );
-				done( pError );
-			});
-    	//}, function( pError ) {
-		//	console.error('Failed!');
-		//	if ( pError ) console.error( pError );
-		//});
-	
-    	
-    	
+		var options = { parent: {} };
+    	var oActual = oTested.handle_create( TEST_CLUSTER_CONFIG, options );
+		oActual.then( function() {
+			done();
+		}, function( pError ) {
+			console.error('Failed!');
+			if ( pError ) console.error( pError );
+			done( pError );
+		});
 	});
 });
