@@ -60,7 +60,7 @@ Resources:
                   - !Ref 'AWS::StackId'
                   - |+
                   
-                  - resource=HPCCNodeEc2Instance
+                  - resource=HPCCCluster
                   - |+
                   
                   - region=
@@ -118,9 +118,9 @@ Resources:
             yum update -y
             yum install -y aws-cfn-bootstrap
             # Install the files and packages from the metadata
-            /opt/aws/bin/cfn-init -v --stack \${AWS::StackName} --resource HPCCNodeEc2Instance --region \${AWS::Region}
+            /opt/aws/bin/cfn-init -v --stack \${AWS::StackName} --resource HPCCCluster --region \${AWS::Region}
             # Signal the status from cfn-init
-            /opt/aws/bin/cfn-signal -e $? --stack \${AWS::StackName} --resource HPCCNodeEc2Instance --region \${AWS::Region}
+            /opt/aws/bin/cfn-signal -e $? --stack \${AWS::StackName} --resource HPCCCluster --region \${AWS::Region}
       Tags:
       - Value:
           Fn::Join:
@@ -135,16 +135,16 @@ Outputs:
   InstanceId:
     Description: Instance Id
     Value:
-      Ref: HPCCNodeEc2Instance
+      Ref: HPCCCluster
   PrivateIP:
     Description: Private IP
     Value:
       Fn::GetAtt:
-      - HPCCNodeEc2Instance
+      - HPCCCluster
       - PrivateIp
   PublicIP:
     Description: Public IP
     Value:
       Fn::GetAtt:
-      - HPCCNodeEc2Instance
+      - HPCCCluster
       - PublicIp

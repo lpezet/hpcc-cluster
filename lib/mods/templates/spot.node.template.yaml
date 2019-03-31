@@ -59,7 +59,7 @@ Resources:
                   - !Ref 'AWS::StackId'
                   - |+
                   
-                  - resource=HPCCNodeEc2Instance
+                  - resource=HPCCCluster
                   - |+
                   
                   - region=
@@ -149,16 +149,16 @@ Resources:
   #InstanceId:
   #  Description: Instance Id
   #  Value:
-  #    Ref: HPCCNodeEc2Instance
+  #    Ref: HPCCCluster
   #PrivateIP:
   #  Description: Private IP
   #  Value:
   #    Fn::GetAtt:
-  #    - HPCCNodeEc2Instance
+  #    - HPCCCluster
   #    - PrivateIp
   #PublicIP:
   #  Description: Public IP
   #  Value:
   #    Fn::GetAtt:
-  #    - HPCCNodeEc2Instance
+  #    - HPCCCluster
   #    - PublicIp
