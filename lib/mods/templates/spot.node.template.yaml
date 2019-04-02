@@ -7,7 +7,7 @@ Parameters:
     Type: String
   ParamCapacity:
     Description: Number of nodes
-    Type: Integer
+    Type: Number
 Resources:
   HPCCCluster:
     Type: AWS::EC2::SpotFleet
@@ -77,7 +77,7 @@ Resources:
       SpotFleetRequestConfigData:
         AllocationStrategy: "lowestPrice"
         IamFleetRole: ${Instance.IamFleetRole}
-        SpotPrice: -----> TODO <-------
+        SpotPrice: ${Instance.MaxSpotPrice}
         TargetCapacity:
           Ref: ParamCapacity
         LaunchSpecifications:
@@ -105,7 +105,8 @@ Resources:
               #end
               #end
             EbsOptimized: true
-            IamInstanceProfile: ${Instance.IamRole}
+            IamInstanceProfile:
+              Arn: ${Instance.IamRole}
             ImageId: ${Instance.ImageId}
             InstanceType: ${Instance.Type}
             KeyName: ${Instance.KeyName}
@@ -115,7 +116,7 @@ Resources:
               - AssociatePublicIpAddress: true
                 DeviceIndex: 0
                 SubnetId: ${Vpc.SubnetId}
-                GroupSet: 
+                Groups: 
                   - ${Vpc.SecurityGroupId}
                 #PrivateIpAddresses:
                 # ---> TODO <----
