@@ -44,20 +44,20 @@ describe('Ssh',function(){
 		done();
 	});
 	
-	it('shell rejects',function(done){
+	it('shell get_state error thrown',function(done){
 		var HpccClusterMock = {
     			mod: function() {},
     			save_state: function() {
     				return Promise.resolve();
     			},
     			get_state: function() {
-    				return Promise.resolve();
+    				throw new Error('Test error');
     			}
     	}
 		
 		var SSHClientMock = {
-				shell: function() {
-					return Promise.reject();
+				shell: function( pOpts, pCallback) {
+					pCallback( new Error('Test error'));
 				}
 		};
     	
@@ -70,7 +70,59 @@ describe('Ssh',function(){
     	});	
 	});
 	
-	it('shell throws error',function(done){
+	it('shell get_state error',function(done){
+		var HpccClusterMock = {
+    			mod: function() {},
+    			save_state: function() {
+    				return Promise.resolve();
+    			},
+    			get_state: function() {
+    				return Promise.reject(new Error('Test error'));
+    			}
+    	}
+		
+		var SSHClientMock = {
+				shell: function( pOpts, pCallback) {
+					pCallback( new Error('Test error'));
+				}
+		};
+    	
+		var oTested = new TestedClass( HpccClusterMock, Logger, Utils, SSHClientMock );
+    	var options = { parent: {}, target: 'slave', cmd:'hostname' };
+    	oTested.handle( oClusterConfig, options ).then( function() {
+    		done('Expecting rejection.');
+    	}, function( pError ) {
+    		done();
+    	});	
+	});
+	
+	it('shell error',function(done){
+		var HpccClusterMock = {
+    			mod: function() {},
+    			save_state: function() {
+    				return Promise.resolve();
+    			},
+    			get_state: function() {
+    				return Promise.resolve();
+    			}
+    	}
+		
+		var SSHClientMock = {
+				shell: function( pOpts, pCallback) {
+					pCallback( new Error('Test error'));
+				}
+		};
+    	
+		var oTested = new TestedClass( HpccClusterMock, Logger, Utils, SSHClientMock );
+    	var options = { parent: {}, target: 'slave', cmd:'hostname' };
+    	oTested.handle( oClusterConfig, options ).then( function() {
+    		done('Expecting rejection.');
+    	}, function( pError ) {
+    		done();
+    	});	
+	});
+	
+	it('shell error thrown',function(done){
 		var HpccClusterMock = {
     			mod: function() {},
     			save_state: function() {
