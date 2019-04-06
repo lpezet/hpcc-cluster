@@ -713,6 +713,38 @@ describe('Cloud',function(){
 				done( pError );
 			})
 		});
+		it('with spot fleet', function(done) {
+			var oClientMock = {
+					listStackResources: function( pParams, pCallback ) {
+						pCallback( null, { StackResourceSummaries: [ { ResourceType: "AWS::EC2::SpotFleet", PhysicalResourceId: "sfr-1" } ] } );
+					}
+			}
+			var oTested = new TestedClass( Logger, { cf: oClientMock } );
+			oTested.get_all_ec2_instance_ids_from_spot_fleet_request = function() {
+				return Promise.resolve( [ 'Instance1' ]);
+			}
+			oTested.get_all_ec2_instance_ids_from_stack( {} ).then( function() {
+				done();
+			}, function( pError ) {
+				done( pError );
+			})
+		});
+		it('error with spot fleet', function(done) {
+			var oClientMock = {
+					listStackResources: function( pParams, pCallback ) {
+						pCallback( null, { StackResourceSummaries: [ { ResourceType: "AWS::EC2::SpotFleet", PhysicalResourceId: "sfr-1" } ] } );
+					}
+			}
+			var oTested = new TestedClass( Logger, { cf: oClientMock } );
+			oTested.get_all_ec2_instance_ids_from_spot_fleet_request = function() {
+				return Promise.reject(new Error('Test error'));
+			}
+			oTested.get_all_ec2_instance_ids_from_stack( {} ).then( function() {
+				done('Expected error');
+			}, function( pError ) {
+				done();
+			})
+		});
 		it('client not provided', function(done) {
 			var oTested = new TestedClass( Logger, {} );
 			oTested.get_all_ec2_instance_ids_from_stack( {} ).then( function() {
@@ -736,7 +768,20 @@ describe('Cloud',function(){
 		});
 	});
 	
-	//get_all_ec2_instance_ids_from_stacks
+	
+	describe('get_all_ec2_instance_ids_from_stacks', function() {
+		it('basic', function(done) {
+			var oTested = new TestedClass( Logger, {} );
+			oTested.get_all_ec2_instance_ids_from_stack = function() {
+				return Promise.resolve( ['Instance1' ] );
+			}
+			oTested.get_all_ec2_instance_ids_from_stacks( [ { PhysicalResourceId: 'stack1' } ] ).then( function() {
+				done();
+			}, function( pError ) {
+				done( pError );
+			})
+		});
+	});
 	
 	describe('find_PublicIp', function() {
 		it('present', function() {
