@@ -526,7 +526,7 @@ describe('Cloud',function(){
 					}
 			}
 			var oTested = new TestedClass( Logger, { cf: oClientMock } );
-			oTested.stack_exists( {} ).then( function() {
+			oTested.stack_exists( 'stackId' ).then( function() {
 				done();
 			}, function( pError ) {
 				done( pError );
@@ -601,6 +601,21 @@ describe('Cloud',function(){
 				done('Expected rejection.');
 			}, function( pError ) {
 				done();
+			})
+		});
+	});
+	describe('get_all_ec2_instance_ids_from_spot_fleet_request', function() {
+		it('basic', function(done) {
+			var oClientMock = {
+					describeSpotFleetInstances: function( pParams, pCallback ) {
+						pCallback( null, { ActiveInstances: [ { InstanceId: 'abc' } ] } );
+					}
+			}
+			var oTested = new TestedClass( Logger, { ec2: oClientMock } );
+			oTested.get_all_ec2_instance_ids_from_spot_fleet_request( 'sfr-id' ).then( function() {
+				done();
+			}, function( pError ) {
+				done( pError );
 			})
 		});
 	});
