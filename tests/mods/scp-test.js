@@ -139,4 +139,66 @@ describe('Scp',function(){
     		done( err );
     	});
 	});
+	
+	it('ip only', function(done) {
+		var HpccClusterMock = {
+    			mod: function() {},
+    			get_state: function() {
+    				return Promise.resolve({Topology: {
+    					"slave00001": { NetworkInterfaces: [ { Association: { PublicIp: "1.2.3.4" } } ] },
+    					"slave00002": { NetworkInterfaces: [ { Association: { PublicIp: "5.6.7.8" } } ] },
+    					"master": { NetworkInterfaces: [ { Association: { PublicIp: "9.10.11.12" } } ] }
+    				}})
+    			}
+    	}
+		
+    	var SSHClientMock = {
+    			scpFile: function( pOpts, pTarget, pSource, pCallback ) {
+    				assert.include( pOpts, { host: '1.1.1.1', username: 'ec2-user' });
+    				pCallback( null, "", null, {}, {} );
+    			}
+    	}
+		var oTested = new TestedClass( HpccClusterMock, Logger, Utils, SSHClientMock );
+		
+    	var oParams = {
+    			source: "/tmp/test.txt",
+    			target: "ec2-user@1.1.1.1:/tmp/target.txt"
+    	};
+    	oTested.handle( { KeyPairFile: path.resolve(__dirname, 'test.key') }, oParams ).then( function( data ) {
+    		done();
+    	}, function( err ) {
+    		done( err );
+    	});
+	});
+	
+	it('target dir only', function(done) {
+		var HpccClusterMock = {
+    			mod: function() {},
+    			get_state: function() {
+    				return Promise.resolve({Topology: {
+    					"slave00001": { NetworkInterfaces: [ { Association: { PublicIp: "1.2.3.4" } } ] },
+    					"slave00002": { NetworkInterfaces: [ { Association: { PublicIp: "5.6.7.8" } } ] },
+    					"master": { NetworkInterfaces: [ { Association: { PublicIp: "9.10.11.12" } } ] }
+    				}})
+    			}
+    	}
+		
+    	var SSHClientMock = {
+    			scpFile: function( pOpts, pTarget, pSource, pCallback ) {
+    				assert.include( pOpts, { host: '1.1.1.1', username: 'ec2-user' });
+    				pCallback( null, "", null, {}, {} );
+    			}
+    	}
+		var oTested = new TestedClass( HpccClusterMock, Logger, Utils, SSHClientMock );
+		
+    	var oParams = {
+    			source: "/tmp/test.txt",
+    			target: "ec2-user@1.1.1.1:/tmp/"
+    	};
+    	oTested.handle( { KeyPairFile: path.resolve(__dirname, 'test.key') }, oParams ).then( function( data ) {
+    		done();
+    	}, function( err ) {
+    		done( err );
+    	});
+	});
 });

@@ -53,6 +53,7 @@ describe('Utils',function(){
 	});
 	
 	it('resolve_target', function() {
+		assert.equal( Tested.resolve_target(null, '@1.2.3.4'), '1.2.3.4' );
 		assert.equal( Tested.resolve_target(null, '1.2.3.4'), '1.2.3.4' );
 		assert.equal( Tested.resolve_target(null, 'master'), 'master' );
 		assert.equal( Tested.resolve_target({ Topology: { 

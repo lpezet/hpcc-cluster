@@ -108,13 +108,15 @@ describe('Ssh',function(){
     	}
 		
 		var SSHClientMock = {
-				shell: function() {
-					return Promise.resolve();
+				shell: function( pOpts, pCallback ) {
+					pCallback();
+					//return Promise.resolve();
 				}
 		};
     	
 		var oTested = new TestedClass( HpccClusterMock, Logger, Utils, SSHClientMock );
     	var options = { parent: {}, target: 'slave', cmd:'hostname' };
+    	oClusterConfig.KeyPairFile = path.resolve( __dirname, 'test.key' ); 
     	oTested.handle( oClusterConfig, options ).then( function() {
     		done();
     	}, function( pError ) {
