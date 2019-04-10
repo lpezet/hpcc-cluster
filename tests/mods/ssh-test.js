@@ -148,7 +148,7 @@ describe('Ssh',function(){
     	});	
 	});
 
-	it('should ssh',function(done){
+	it('basic',function(done){
 		var HpccClusterMock = {
     			mod: function() {},
     			save_state: function() {
@@ -162,7 +162,6 @@ describe('Ssh',function(){
 		var SSHClientMock = {
 				shell: function( pOpts, pCallback ) {
 					pCallback();
-					//return Promise.resolve();
 				}
 		};
     	
