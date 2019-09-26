@@ -332,7 +332,7 @@ describe('Create',function(){
     				return Promise.resolve("TODO: dunno what's returned here.");
     			},
     			secure_storage_setup: function() {
-    				return Promise.reject( new Error() );
+    				return Promise.reject( new Error("Test error") );
     			},
     			create_stack_to_completion: function() {
     				return Promise.resolve("TODO: dunno what's returned here.");

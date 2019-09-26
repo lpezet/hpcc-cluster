@@ -756,7 +756,7 @@ describe('Cloud',function(){
 		it('client error listStackResources', function(done) {
 			var oClientMock = {
 					listStackResources: function( pParams, pCallback ) {
-						pCallback( new Error(), null );
+						pCallback( new Error("Test error"), null );
 					}
 			}
 			var oTested = new TestedClass( Logger, { cf: oClientMock } );

@@ -43,9 +43,10 @@
     "node": ">= 0.12.4"
   },
   "dependencies": {
+    "@lpezet/etl-js": "^1.2.0",
     "aws-sdk": "^2.433.0",
     "external-ip": "^0.2.4",
-    "js-yaml": "^3.13.0",
+    "js-yaml": "^3.13.1",
     "moniker": "^0.1.2",
     "mustache": "^2.3.0",
     "netaddr": "^1.1.0",
@@ -67,7 +68,7 @@
     "doctoc": "^1.4.0",
     "eslint": "^5.15.3",
     "mocha": "^5.0.0",
-    "nyc": "^13.3.0",
+    "nyc": "^14.1.1",
     "sinon": "^4.1.6"
   }
 }
