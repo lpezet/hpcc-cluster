@@ -81,13 +81,26 @@ describe('Init',function() {
 			});
 		});
 	};
+	
+	var unlinkPromise = function( pPath ) {
+		return new Promise( function( resolve, reject ) {
+			Fs.unlink( pPath, function(err, out) {
+				if (err) {
+					reject( err );
+				} else {
+					resolve( out );
+				}
+			});
+		});
+	}
 
 	var clearHpccClusterInit = function() {
 		var oPromises = [];
+		// Fs.promises are only since NodeJS v10.0
 		oPromises.push( function() { return Promise.resolve(); } );
 		if (Fs.existsSync( WORK_DIR )) oPromises.push( function() { return rmdirR( WORK_DIR ); } );
-		if (Fs.existsSync( CLUSTER_CONFIG_FILE )) oPromises.push( function() { return Fs.promises.unlink( CLUSTER_CONFIG_FILE ); } );
-		if (Fs.existsSync( MY_CONFIG_FILE )) oPromises.push( function() { return Fs.promises.unlink( MY_CONFIG_FILE ); } );
+		if (Fs.existsSync( CLUSTER_CONFIG_FILE )) oPromises.push(  function() { return unlinkPromise( CLUSTER_CONFIG_FILE ); } );
+		if (Fs.existsSync( MY_CONFIG_FILE )) oPromises.push( function() { return unlinkPromise( MY_CONFIG_FILE ); } );
 		return Promises.seq( oPromises );
 	}
 	
