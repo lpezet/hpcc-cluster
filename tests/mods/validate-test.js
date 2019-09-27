@@ -1,21 +1,19 @@
 const Fs = require('fs');
 var exec = require('child_process').exec
 const AWS = require('aws-sdk');
-const { yamlParse } = require('yaml-cfn');
+//const { yamlParse } = require('yaml-cfn');
 const path = require('path');
 const SimpleLogger = require('../../lib/logger');
 const Logger = new SimpleLogger();
-const assert = require('chai').assert;
 const os = require('os');
 
-
+/*
 const load_test_config = function() {
 	return yamlParse( Fs.readFileSync( TEST_CONFIG_FILE_PATH, {encoding: 'utf8'}) );
 }
-
 const TEST_CONFIG_FILE_PATH = path.resolve(__dirname, "test.cluster.config");
 var TEST_CLUSTER_CONFIG = load_test_config();
-
+*/
 
 const TestedClass = require("../../lib/mods/validate");
 const UtilsClass = new require('../../lib/utils');
@@ -35,24 +33,22 @@ beforeEach(function(done) {
 	done();
 });
 
-
-rmdirR = function( pPath ) {
-	return exec('rm -rf ' + pPath,function(err,out) { 
-	  console.log(out); err && console.log(err); 
-	});
-};
-
-clearHpccClusterInit = function() {
-	const oWorkDir = path.resolve(os.tmpdir(), ".hpcc-cluster");
-	if (Fs.existsSync( oWorkDir )) rmdirR( oWorkDir );
-}
-
 /* 
  * ======================================================
  * Create
  * ======================================================
  */
-describe('Validate',function(){
+describe('Validate',function() {
+	var rmdirR = function( pPath ) {
+		return exec('rm -rf ' + pPath,function(err,out) { 
+		  console.log(out); err && console.log(err); 
+		});
+	};
+
+	var clearHpccClusterInit = function() {
+		const oWorkDir = path.resolve(os.tmpdir(), ".hpcc-cluster");
+		if (Fs.existsSync( oWorkDir )) rmdirR( oWorkDir );
+	}
 	
 	before(function(done) {
 		clearHpccClusterInit();

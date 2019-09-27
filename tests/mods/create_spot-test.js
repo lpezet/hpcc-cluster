@@ -55,30 +55,29 @@ beforeEach(function(done) {
 	done();
 });
 
-
-rmdirR = function( pPath ) {
-	return exec('rm -rf ' + pPath,function(err,out) { 
-	  console.log(out); err && console.log(err); 
-	});
-};
-
-clearHpccClusterInit = function() {
-	const oWorkDir = path.resolve(os.tmpdir(), ".hpcc-cluster");
-	//const oClusterConfigFile = path.resolve(TEST_DIR, "cluster.config");
-	//const oMyConfigFile = path.resolve(TEST_DIR, "my.config");
-	
-	if (Fs.existsSync( oWorkDir )) rmdirR( oWorkDir );
-	//if (Fs.existsSync( oClusterConfigFile )) Fs.unlinkSync( oClusterConfigFile );
-	//if (Fs.existsSync( oMyConfigFile )) Fs.unlinkSync( oMyConfigFile );
-
-}
-
 /* 
  * ======================================================
  * Create
  * ======================================================
  */
-describe('Create',function(){
+describe('Create Spot',function(){
+	
+	var rmdirR = function( pPath ) {
+		return exec('rm -rf ' + pPath,function(err,out) { 
+		  console.log(out); err && console.log(err); 
+		});
+	};
+
+	var clearHpccClusterInit = function() {
+		const oWorkDir = path.resolve(os.tmpdir(), ".hpcc-cluster");
+		//const oClusterConfigFile = path.resolve(TEST_DIR, "cluster.config");
+		//const oMyConfigFile = path.resolve(TEST_DIR, "my.config");
+		
+		if (Fs.existsSync( oWorkDir )) rmdirR( oWorkDir );
+		//if (Fs.existsSync( oClusterConfigFile )) Fs.unlinkSync( oClusterConfigFile );
+		//if (Fs.existsSync( oMyConfigFile )) Fs.unlinkSync( oMyConfigFile );
+
+	}
 	
 	before(function(done) {
 		clearHpccClusterInit();

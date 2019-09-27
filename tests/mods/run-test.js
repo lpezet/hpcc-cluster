@@ -1,5 +1,5 @@
 const Fs = require('fs');
-var exec = require('child_process').exec
+//var exec = require('child_process').exec
 const AWS = require('aws-sdk');
 
 //const Promise = require("promised-io/promise").Promise;
@@ -16,7 +16,7 @@ const Logger = new SimpleLogger();
 
 //const assert = require('assert');
 //const sinon = require('sinon');
-const TEST_DIR = process.cwd();
+//const TEST_DIR = process.cwd();
 //if ( ! Fs.existsSync( TEST_DIR ) ) Fs.mkdirSync( TEST_DIR );
 const TEST_CONFIG_FILE_PATH = path.resolve(__dirname, "test.cluster.config");
 var oClusterConfig = yamlParse( Fs.readFileSync( TEST_CONFIG_FILE_PATH, {encoding: 'utf8'}) );
@@ -52,24 +52,6 @@ beforeEach(function(done) {
 	  });
 	done();
 });
-
-rmdirR = function( pPath ) {
-	return exec('rm -rf ' + pPath,function(err,out) { 
-	  //console.log(out); err && console.log(err); 
-	});
-};
-
-clearHpccClusterInit = function() {
-	const oWorkDir = path.resolve(TEST_DIR, ".hpcc-cluster");
-	const oClusterConfigFile = path.resolve(TEST_DIR, "cluster.config");
-	const oMyConfigFile = path.resolve(TEST_DIR, "my.config");
-	
-	if (Fs.existsSync( oWorkDir )) rmdirR( oWorkDir );
-	if (Fs.existsSync( oClusterConfigFile )) Fs.unlinkSync( oClusterConfigFile );
-	if (Fs.existsSync( oMyConfigFile )) Fs.unlinkSync( oMyConfigFile );
-
-}
-
 
 /* 
  * ======================================================

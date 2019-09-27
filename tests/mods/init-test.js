@@ -12,6 +12,8 @@ const path = require('path');
 //const PromiseAll = require("promised-io/promise").all;
 
 const SimpleLogger = require('../../lib/logger');
+const Promises = require('../../lib/promises');
+
 const Logger = new SimpleLogger();
 
 //const assert = require('assert');
@@ -60,39 +62,53 @@ beforeEach(function(done) {
 	done();
 });
 
-rmdirR = function( pPath ) {
-	return exec('rm -rf ' + pPath,function(err,out) { 
-	  console.log(out); err && console.log(err); 
-	});
-};
-
-clearHpccClusterInit = function() {
-	if (Fs.existsSync( WORK_DIR )) rmdirR( WORK_DIR );
-	if (Fs.existsSync( CLUSTER_CONFIG_FILE )) Fs.unlinkSync( CLUSTER_CONFIG_FILE );
-	if (Fs.existsSync( MY_CONFIG_FILE )) Fs.unlinkSync( MY_CONFIG_FILE );
-}
-
-
-
-
 /* 
  * ======================================================
  * Init
  * ======================================================
  */
-describe('Init',function(){
+describe('Init',function() {
+
+	var rmdirR = function( pPath ) {
+		return new Promise( function(resolve, reject) {
+			exec('rm -rf ' + pPath,function(err,out) { 
+				if (err) {
+					reject(err);
+				} else {
+					resolve(out);
+				}
+				//console.log(out); err && console.log(err); 
+			});
+		});
+	};
+
+	var clearHpccClusterInit = function() {
+		var oPromises = [];
+		oPromises.push( function() { return Promise.resolve(); } );
+		if (Fs.existsSync( WORK_DIR )) oPromises.push( function() { return rmdirR( WORK_DIR ); } );
+		if (Fs.existsSync( CLUSTER_CONFIG_FILE )) oPromises.push( function() { return Fs.promises.unlink( CLUSTER_CONFIG_FILE ); } );
+		if (Fs.existsSync( MY_CONFIG_FILE )) oPromises.push( function() { return Fs.promises.unlink( MY_CONFIG_FILE ); } );
+		return Promises.seq( oPromises );
+	}
 	
 	beforeEach(function(done) {
-		clearHpccClusterInit();
+		clearHpccClusterInit().then( function() {
+			done();
+		}, function(error) {
+			done(error);
+		});
 		//this.modStub = sinon.stub(HpccClusterClass.prototype, 'mod');
-		done();
+		//done();
 	});
 	
 	afterEach(function(done) {
 		//assert( this.modStub.called );
 		//HpccClusterClass.prototype.mod.restore();
-		clearHpccClusterInit();
-		done();
+		clearHpccClusterInit().then( function() {
+			done();
+		}, function(error) {
+			done(error);
+		});
 	});
 	
 	it('should create config file',function(done){
@@ -111,7 +127,7 @@ describe('Init',function(){
 		
 		var options = { parent: {} };
 		options.WorkDir = WORK_DIR;
-    	var oInit = oTested.handle( {}, options );
+		var oInit = oTested.handle( {}, options );
     	oInit.then( function() {
     		if ( ! Fs.existsSync( WORK_DIR ) ) {
     			done('Work dir missing.')
