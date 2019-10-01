@@ -101,7 +101,7 @@ Resources:
                   VolumeSize: '${vol.Size}'
                   Encrypted: #default($vol.Encrypted,"false")
                   #if($vol.Encrypted)
-                  KmsKeyId: '#default($vol.EncryptionKey,"aws/ebs")'
+                  #KmsKeyId: '#default($vol.EncryptionKey,"aws/ebs")'
                   #end
                   #end
                   VolumeType: #default($vol.Type,"gp2")
