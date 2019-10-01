@@ -10,6 +10,8 @@ Vpc:
   SecurityGroupId: sg-12345678
 
 Cluster:
+  # Type: either on-demand or spot. Default is on-demand.
+  Type: on-demand
   # HPCC Platform Version (CentOS/REL6)
   Version: 6.4.22-1
   # Number of slave: 0-45
@@ -27,8 +29,12 @@ Instance:
   # Some hints for now: us-east-1 (a) : ami-0b33d91d, us-east-2 : ami-c55673a0
   ImageId: ami-0b33d91d
   # Role to be used by EC2 instances. This is importat as resources will be downloaded using "aws" cli, which will use this role for permissions.
+  # For "spot" type cluster:
+  IamRole: "arn:aws:iam::123456789012:instance-profile/hpcc-cluster"
+  IamFleetRole: "arn:aws:iam::123456789012:role/aws-ec2-spot-fleet-tagging-role"
+  MaxSpotPrice: 0.10
+  # For "on-demand" type cluster
   IamRole: hpcc-cluster
-  IamFleetRole: "arn:aws:iam::123456789:role/aws-ec2-spot-fleet-tagging-role"
   # Valid EC2 Instance Type for region AND availability zone (!!!). Check AWS documentation for list of valid types.
   # WARNING: EBS-Optimized types only. See https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSOptimized.html#ebs-optimization-support
   Type: m4.large
@@ -51,10 +57,12 @@ Instance:
     999_cwlogs: https://raw.githubusercontent.com/lpezet/hpcc-cluster-cli-configsets/master/aws-cwlogs.yaml   
   # Volumes
   Volumes:
-    - # required
-      DeviceName: /dev/xvdf
+    - # required. NB: at least the /dev/xvda entry must be present to define root volume
+      DeviceName: /dev/xvda
+      # optional, default to true
+      DeleteOnTermination: true
       # required if type != ephemeral. Size in GB
-      Size: 1
+      Size: 8
       # optional, defaults to gp2. Valid EBS Volume Type: gp2, io1, st1, etc. Check AWS documentation for exhaustive and up-to-date list of valid values.
       # ephemeral is also possible for instance store.
       Type: gp2
@@ -62,6 +70,8 @@ Instance:
       FSType: ext4
       # optional, defaults to false. Either true or false
       Encrypted: true
+      # optional, default to your AWS managed CMK.
+      #EncryptionKey: alias/my-key
       # required for io1 type volume.
       #Iops: 1000
       # optional. Where the device will be mounted.

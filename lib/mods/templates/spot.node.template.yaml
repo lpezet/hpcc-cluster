@@ -17,15 +17,19 @@ Resources:
         configSets:
           default:
             - ConfigSet: Basic
+            #if( $Node.ConfigSets && ! $Node.ConfigSets.isEmpty() )
             - ConfigSet: AddOns
+            #end
           Basic:
             - AWSBaseConfig
             - BasePackages
             - ClusterProperties
+          #if( $Node.ConfigSets && ! $Node.ConfigSets.isEmpty() )
           AddOns:
             #foreach( $ConfigSet in $Node.ConfigSets.entrySet() )
             - ${ConfigSet.key}
             #end
+          #end
         BasePackages:
           packages:
             yum:
@@ -82,21 +86,23 @@ Resources:
           Ref: ParamCapacity
         LaunchSpecifications:
           - BlockDeviceMappings:
-              - DeviceName: /dev/xvda
-                Ebs:
-                  DeleteOnTermination: true
-                  VolumeSize: '8'
-                  VolumeType: gp2
+              #- DeviceName: /dev/xvda
+              #  Ebs:
+              #    DeleteOnTermination: true
+              #    VolumeSize: '8'
+              #    VolumeType: gp2
               #foreach( $vol in $Node.Volumes )
               #if( $vol.Type != 'ephemeral' )
               - DeviceName: ${vol.DeviceName}
                 Ebs:
-                  DeleteOnTermination: true
                   #if( $vol.SnapshotId )
                   SnapshotId: ${vol.SnapshotId}
                   #else
                   VolumeSize: '${vol.Size}'
                   Encrypted: #default($vol.Encrypted,"false")
+                  #if($vol.Encrypted)
+                  KmsKeyId: '#default($vol.EncryptionKey,"aws/ebs")'
+                  #end
                   #end
                   VolumeType: #default($vol.Type,"gp2")
                   #if( $vol.Type == 'io1' )

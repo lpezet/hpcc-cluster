@@ -35,7 +35,7 @@ class DefaultErrorHandler extends HandlerClass {
 const DEFAULT_ERROR_HANDLER = new DefaultErrorHandler();
 */
 
-const TestedClass = require("../../lib/mods/create_spot");
+const TestedClass = require("../../lib/mods/create_ondemand");
 //const HpccClusterClass = require("../../lib/hpcc-cluster");
 const UtilsClass = new require('../../lib/utils');
 //const Utils = new UtilsClass( DEFAULT_ERROR_HANDLER );
@@ -60,7 +60,7 @@ beforeEach(function(done) {
  * Create
  * ======================================================
  */
-describe('CreateSpot',function(){
+describe('CreateOnDemand',function(){
 	
 	var rmdirR = function( pPath ) {
 		return exec('rm -rf ' + pPath,function(err,out) { 
@@ -491,15 +491,14 @@ describe('CreateSpot',function(){
     	var oTested = new TestedClass( HpccClusterMock, Logger, Utils, CloudClientMock );
     	
 		var options = { parent: {} };
-		
     	var oActual = oTested.handle_create( TEST_CLUSTER_CONFIG, options );
 		oActual.then( function() {
+			var oMasterTemplate = yamlParse( Fs.readFileSync( ".hpcc-cluster/_generated_master_template.yaml", {encoding: 'utf8'}) );
+			//console.log('#### Master template:');
+			//console.dir( oMasterTemplate );
+			var oCFInit = oMasterTemplate['Resources']['HPCCCluster']['Metadata']['AWS::CloudFormation::Init'];
+			var oConfigSets = oCFInit['configSets'];
 			try {
-				var oMasterTemplate = yamlParse( Fs.readFileSync( ".hpcc-cluster/_generated_master_template.yaml", {encoding: 'utf8'}) );
-				//console.log('#### Master template:');
-				//console.dir( oMasterTemplate );
-				var oCFInit = oMasterTemplate['Resources']['HPCCCluster']['Metadata']['AWS::CloudFormation::Init'];
-				var oConfigSets = oCFInit['configSets'];
 				assert.notDeepInclude( oConfigSets['default'], { ConfigSet: "AddOns" });
 				assert.isUndefined( oConfigSets['AddOns'] );
 				done();

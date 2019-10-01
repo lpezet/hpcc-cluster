@@ -18,15 +18,19 @@ Resources:
         configSets:
           default:
             - ConfigSet: Basic
+            #if( $Node.ConfigSets && ! $Node.ConfigSets.isEmpty() )
             - ConfigSet: AddOns
+            #end
           Basic:
             - AWSBaseConfig
             - BasePackages
             - ClusterProperties
+          #if( $Node.ConfigSets && ! $Node.ConfigSets.isEmpty() )
           AddOns:
             #foreach( $ConfigSet in $Node.ConfigSets.entrySet() )
             - ${ConfigSet.key}
             #end
+          #end
         BasePackages:
           packages:
             yum:
@@ -86,7 +90,7 @@ Resources:
         - ${Vpc.SecurityGroupId}
         PrivateIpAddress:
           Ref: ParamPrivateIpAddress
-      IamInstanceProfile: ${Instance.IamRole}
+      IamInstanceProfile: #lastpart($Instance.IamRole, '/')
       EbsOptimized: true
       BlockDeviceMappings:
       - DeviceName: /dev/xvda
@@ -104,6 +108,9 @@ Resources:
           #else
           VolumeSize: '${vol.Size}'
           Encrypted: #default($vol.Encrypted,"false")
+          #if($vol.Encrypted)
+          KmsKeyId: '#default($vol.EncryptionKey,"aws/ebs")'
+          #end
           #end
           VolumeType: #default($vol.Type,"gp2")
           #if( $vol.Type == 'io1' )

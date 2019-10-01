@@ -1,1 +1,2 @@
 #macro(default $param, $defaultValue)#if (!$!param || $!param == "")#if (!$!defaultValue)""#else$defaultValue#end#else$param#end#end
+#macro(lastpart $value, $sep)#if(!$!value || $!value == "")""#else#set ($index = $value.lastIndexOf($sep))#if($index >= 0 && $index < $value.length())#set($index = $index + 1)$value.substring($index)#else$value#end#end#end

@@ -92,120 +92,119 @@ describe('Create',function(){
 		done();
 	});
 	
-	it('inject config sets with string template',function(){
+	describe('handle_create_cloudformation_templates', function() {
 		var HpccClusterMock = {
-    			mod: function() {},
-    			save_state: function() {
-    				return Promise.resolve();
-    			},
-    			refresh_state: function() {
-    				return Promise.resolve();
-    			}
-    			//mInternalConfig: {
-    			//	LocalDir : path.resolve(os.tmpdir(), ".hpcc-cluster")
-    			//}
-    	}
+    			mod: function() {}
+    	};
     	
-    	var oTested = new TestedClass( HpccClusterMock, Logger, Utils, {} );
-    	oTested._sync_request = function() {
-    		return { getBody: function() { return "{ commands: { 001_test: { command: whoami } } }" } };
-    	}
-		var oClusterConfig = {
-				Node: {
-					ConfigSets: {
-						"001_CS": "http://dont.matter.com"
-					}
-				}
-		};
-    	var oTemplate = "Resources:\n  HPCCCluster:\n    Metadata:\n      \'AWS::CloudFormation::Init\':\n";
-    	var oActual = oTested._injectConfigSets( oClusterConfig, oTemplate );
-    	assert.isNotNull( oActual );
-    	assert.equal( oActual, "Resources:\n  HPCCCluster:\n    Metadata:\n      \'AWS::CloudFormation::Init\':\n        001_CS:\n          commands:\n            001_test:\n              command: whoami\n");
+    	var CloudClientMock = {};
+    	
+    	var oTested = new TestedClass( HpccClusterMock, Logger, Utils, CloudClientMock );
+    	oTested.mCreateSpot.handle_create_cloudformation_templates = function() {
+    		return Promise.resolve();
+    	};
+    	oTested.mCreateOnDemand.handle_create_cloudformation_templates = function() {
+    		return Promise.resolve();
+    	};
+    	
+		it('on-demand', function(done) {
+	    	var oActual = oTested.handle_create_cloudformation_templates( { Email: 'toto@titi.com', Cluster: { Name: "talentedmint", Type: 'on-demand' }, AWS: { S3Bucket: "testbucket", Username: "testuser" }, Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
+			oActual.then( function() {
+				done();
+			}, function( pError ) {
+				done( pError );
+			});
+		});
+		
+		it('default cluster type', function(done) {
+	    	var oActual = oTested.handle_create_cloudformation_templates( { Email: 'toto@titi.com', Cluster: { Name: "talentedmint" }, AWS: { S3Bucket: "testbucket", Username: "testuser" }, Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
+			oActual.then( function() {
+				done();
+			}, function( pError ) {
+				done( pError );
+			});
+		});
+		
+		it('spot', function(done) {
+	    	var oActual = oTested.handle_create_cloudformation_templates( { Email: 'toto@titi.com', Cluster: { Name: "talentedmint", Type: 'spot' }, AWS: { S3Bucket: "testbucket", Username: "testuser" }, Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
+			oActual.then( function() {
+				done();
+			}, function( pError ) {
+				done( pError );
+			});
+		});
+		
+		it('invalid', function(done) {
+			var oActual = oTested.handle_create_cloudformation_templates( { AWS: { S3Bucket: "testbucket", Username: "testuser" }, Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
+			oActual.then( function() {
+				done('Expected error.');
+			}, function( pError ) {
+				done();
+			});
+		});
 	});
 	
-	it('inject config sets',function(){
+	describe('handle_create', function() {
 		var HpccClusterMock = {
-    			mod: function() {},
-    			save_state: function() {
+    			mod: function() {}
+    	};
+    	
+    	var CloudClientMock = {
+    			estimate_template_cost: function() {
     				return Promise.resolve();
     			},
-    			refresh_state: function() {
-    				return Promise.resolve();
-    			}
-    			//mInternalConfig: {
-    			//	LocalDir : path.resolve(os.tmpdir(), ".hpcc-cluster")
-    			//}
-    	}
-    	
-    	var oTested = new TestedClass( HpccClusterMock, Logger, Utils, {} );
-    	var oClusterConfig = {
-				Node: {
-					ConfigSets: {
-						"001_CS": {
-							commands: {
-								"001_test": {
-									command: "whoami"
-								}
-							}
-						}
-					}
-				}
-		};
-    	var oTemplate = {
-    			Resources: {
-    				HPCCCluster: {
-    					Metadata: {
-    						"AWS::CloudFormation::Init": {}
-    					}
-    				}
+    			s3_upload_file: function() {
+    				return Promise.resolve("TODO: dunno what's returned here.");
     			}
     	};
-    	var oActual = oTested._injectConfigSets( oClusterConfig, oTemplate );
-    	assert.isNotNull( oActual );
-    	assert.equal( oActual, "Resources:\n  HPCCCluster:\n    Metadata:\n      \'AWS::CloudFormation::Init\':\n        001_CS:\n          commands:\n            001_test:\n              command: whoami\n");
-	});
-
-	it('inject config sets from url',function(){
-		var HpccClusterMock = {
-    			mod: function() {},
-    			save_state: function() {
-    				return Promise.resolve();
-    			},
-    			refresh_state: function() {
-    				return Promise.resolve();
-    			}
-    			//mInternalConfig: {
-    			//	LocalDir : path.resolve(os.tmpdir(), ".hpcc-cluster")
-    			//}
-    	}
     	
-    	var oTested = new TestedClass( HpccClusterMock, Logger, Utils, {} );
-    	oTested._sync_request = function() {
-    		return { getBody: function() { return "{ commands: { 001_test: { command: whoami } } }" } };
-    	}
-		var oClusterConfig = {
-				Node: {
-					ConfigSets: {
-						"001_CS": "http://dont.matter.com"
-					}
-				}
-		};
-    	var oTemplate = {
-    			Resources: {
-    				HPCCCluster: {
-    					Metadata: {
-    						"AWS::CloudFormation::Init": {}
-    					}
-    				}
-    			}
+    	var oTested = new TestedClass( HpccClusterMock, Logger, Utils, CloudClientMock );
+    	oTested.mCreateSpot.handle_create = function() {
+    		return Promise.resolve();
     	};
-    	var oActual = oTested._injectConfigSets( oClusterConfig, oTemplate );
-    	assert.isNotNull( oActual );
-    	assert.equal( oActual, "Resources:\n  HPCCCluster:\n    Metadata:\n      \'AWS::CloudFormation::Init\':\n        001_CS:\n          commands:\n            001_test:\n              command: whoami\n");
+    	oTested.mCreateOnDemand.handle_create = function() {
+    		return Promise.resolve();
+    	};
+    	
+		it('on-demand', function(done) {
+	    	var oActual = oTested.handle_create( { Email: 'toto@titi.com', Cluster: { Name: "talentedmint", Type: 'on-demand' }, AWS: { S3Bucket: "testbucket", Username: "testuser" }, Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
+			oActual.then( function() {
+				done();
+			}, function( pError ) {
+				done( pError );
+			});
+		});
+		
+		it('default cluster type', function(done) {
+	    	var oActual = oTested.handle_create( { Email: 'toto@titi.com', Cluster: { Name: "talentedmint" }, AWS: { S3Bucket: "testbucket", Username: "testuser" }, Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
+			oActual.then( function() {
+				done();
+			}, function( pError ) {
+				done( pError );
+			});
+		});
+		
+		it('spot', function(done) {
+	    	var oActual = oTested.handle_create( { Email: 'toto@titi.com', Cluster: { Name: "talentedmint", Type: 'spot' }, AWS: { S3Bucket: "testbucket", Username: "testuser" }, Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
+			oActual.then( function() {
+				done();
+			}, function( pError ) {
+				done( pError );
+			});
+		});
+		
+		it('invalid', function(done) {
+	    	try {
+				oTested.handle_create( { Cluster: { Name: "talentedmint" }, AWS: { S3Bucket: "testbucket", Username: "testuser" }, Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
+				done('Expected error.');
+			} catch (e) {
+				done();
+			}
+		});
 	});
 	
 	describe('estimate', function() {
-		it('basic', function(done) {
+		it('on-demand', function(done) {
 			var HpccClusterMock = {
 	    			mod: function() {}
 	    	};
@@ -223,7 +222,32 @@ describe('Create',function(){
 	    	oTested.create_cloudformation_templates = function() {
 	    		return Promise.resolve();
 	    	}
-	    	var oActual = oTested.handle_estimate( { Cluster: { Name: "talentedmint" }, AWS: { S3Bucket: "testbucket", Username: "testuser" }, Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
+	    	var oActual = oTested.handle_estimate( { Cluster: { Name: "talentedmint", Type: 'on-demand' }, AWS: { S3Bucket: "testbucket", Username: "testuser" }, Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
+			oActual.then( function() {
+				done();
+			}, function( pError ) {
+				done( pError );
+			});
+		});
+		it('spot', function(done) {
+			var HpccClusterMock = {
+	    			mod: function() {}
+	    	};
+	    	
+	    	var CloudClientMock = {
+	    			estimate_template_cost: function() {
+	    				return Promise.resolve();
+	    			},
+	    			s3_upload_file: function() {
+	    				return Promise.resolve("TODO: dunno what's returned here.");
+	    			}
+	    	};
+	    	
+	    	var oTested = new TestedClass( HpccClusterMock, Logger, Utils, CloudClientMock );
+	    	oTested.create_cloudformation_templates = function() {
+	    		return Promise.resolve();
+	    	}
+	    	var oActual = oTested.handle_estimate( { Cluster: { Name: "talentedmint", Type: "spot" }, AWS: { S3Bucket: "testbucket", Username: "testuser" }, Vpc: { SubnetId: "", SecurityGroupId: "" } }, {} );
 			oActual.then( function() {
 				done();
 			}, function( pError ) {
@@ -405,7 +429,7 @@ describe('Create',function(){
 		});
 	});
 	
-	it('should create',function(done){
+	it('create on-demand',function(done){
 		var HpccClusterMock = {
     			mod: function() {},
     			save_state: function() {
@@ -450,6 +474,98 @@ describe('Create',function(){
 			console.error('Failed!');
 			if ( pError ) console.error( pError );
 			done( pError );
+		});
+	});
+	
+	it('create spot',function(done){
+		var HpccClusterMock = {
+    			mod: function() {},
+    			save_state: function() {
+    				return Promise.resolve();
+    			},
+    			refresh_state: function() {
+    				return Promise.resolve();
+    			}
+    	}
+    	
+    	var CloudClientMock = {
+    			stack_exists: function() {
+    				return Promise.resolve();
+    			},
+    			get_all_ec2_instance_ids_from_cluster: function() {
+    				return Promise.resolve( ['abc', 'def' ]);
+    			},
+    			describe_ec2_status: function( pEC2Client, pInstanceIds, pOutputToConsole ) {
+    				return Promise.resolve('TODO: dunno what data looks like.');
+    			},
+    			s3_upload_file: function() {
+    				return Promise.resolve("TODO: dunno what's returned here.");
+    			},
+    			secure_storage_setup: function() {
+    				return Promise.resolve("TODO: dunno what's returned here.");
+    			},
+    			create_stack_to_completion: function() {
+    				return Promise.resolve("TODO: dunno what's returned here.");
+    			}
+    	};
+    	
+    	var oTested = new TestedClass( HpccClusterMock, Logger, Utils, CloudClientMock );
+    	
+		var options = { parent: {} };
+		var config = JSON.parse(JSON.stringify( TEST_CLUSTER_CONFIG ));
+		config['Cluster']['Type'] = 'spot';
+    	var oActual = oTested.handle_create( config, options );
+		oActual.then( function() {
+			done();
+		}, function( pError ) {
+			console.error('Failed!');
+			if ( pError ) console.error( pError );
+			done( pError );
+		});
+	});
+	
+	it('create invalid config',function(done){
+		var HpccClusterMock = {
+    			mod: function() {},
+    			save_state: function() {
+    				return Promise.resolve();
+    			},
+    			refresh_state: function() {
+    				return Promise.resolve();
+    			}
+    	}
+    	
+    	var CloudClientMock = {
+    			stack_exists: function() {
+    				return Promise.resolve();
+    			},
+    			get_all_ec2_instance_ids_from_cluster: function() {
+    				return Promise.resolve( ['abc', 'def' ]);
+    			},
+    			describe_ec2_status: function( pEC2Client, pInstanceIds, pOutputToConsole ) {
+    				return Promise.resolve('TODO: dunno what data looks like.');
+    			},
+    			s3_upload_file: function() {
+    				return Promise.resolve("TODO: dunno what's returned here.");
+    			},
+    			secure_storage_setup: function() {
+    				return Promise.resolve("TODO: dunno what's returned here.");
+    			},
+    			create_stack_to_completion: function() {
+    				return Promise.resolve("TODO: dunno what's returned here.");
+    			}
+    	};
+    	
+    	var oTested = new TestedClass( HpccClusterMock, Logger, Utils, CloudClientMock );
+    	
+		var options = { parent: {} };
+		var config = JSON.parse(JSON.stringify( TEST_CLUSTER_CONFIG ));
+		delete config['Cluster'];
+    	var oActual = oTested.handle_create( config, options );
+		oActual.then( function() {
+			done('Expected error');
+		}, function( pError ) {
+			done();
 		});
 	});
 });

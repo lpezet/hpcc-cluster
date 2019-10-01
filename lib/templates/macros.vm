@@ -1,1 +1,0 @@
-#macro(default $param, $defaultValue)#if (!$!param || $!param == "")#if (!$!defaultValue)""#else$defaultValue#end#else$param#end#end
