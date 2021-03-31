@@ -55,7 +55,7 @@
     "request": "^2.87.0",
     "ssh2": "^0.8.2",
     "sync-request": "^6.0.0",
-    "underscore": "^1.9.1",
+    "underscore": "^1.12.1",
     "velocity": "^0.7.2",
     "velocityjs": "^1.0.1",
     "when": "^3.7.7",
