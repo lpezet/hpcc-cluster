@@ -53,7 +53,7 @@
     "node-ssh": "^4.1.0",
     "opn": "^5.5.0",
     "request": "^2.87.0",
-    "ssh2": "^0.8.2",
+    "ssh2": "^1.4.0",
     "sync-request": "^6.0.0",
     "underscore": "^1.9.1",
     "velocity": "^0.7.2",
