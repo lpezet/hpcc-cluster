@@ -43,7 +43,7 @@
     "node": ">= 0.12.4"
   },
   "dependencies": {
-    "@lpezet/etl-js": "^1.2.0",
+    "@lpezet/etl-js": "^3.0.4",
     "aws-sdk": "^2.433.0",
     "external-ip": "^0.2.4",
     "js-yaml": "^3.13.1",
