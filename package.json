@@ -52,7 +52,7 @@
     "netaddr": "^1.1.0",
     "node-ssh": "^4.1.0",
     "opn": "^5.5.0",
-    "request": "^2.87.0",
+    "request": "^2.88.2",
     "ssh2": "^0.8.2",
     "sync-request": "^6.0.0",
     "underscore": "^1.9.1",
